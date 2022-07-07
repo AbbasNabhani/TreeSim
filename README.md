@@ -10,7 +10,7 @@
 <img src="https://img.shields.io/github/downloads/AbbasNabhani/TreeSim/total.svg" alt="Release downloads" /></a>
 </div>
 <div align="center">
-  <h2>
+  <h8>
     <a href="https://github.com/AbbasNabhani/TreeSim/tree/master/docs" style="text-decoration: none">
     Documentation</a>
     <span> | </span>
