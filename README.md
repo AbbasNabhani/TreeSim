@@ -16,7 +16,7 @@
     <span> | </span>
     <a href="https://github.com/AbbasNabhani/TreeSim/releases/tag/v0.1.0" style="text-decoration: none">
     Download</a>
-  </h4>
+  </h8>
 </div>
 
 
