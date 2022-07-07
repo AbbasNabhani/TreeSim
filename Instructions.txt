@@ -1,0 +1,57 @@
+
+
+
+To run the simulator, the arrangement of folders should follow below structure:
+
+
+<TreeSim>
+    |
+    |
+    |					  
+    |	 Serrial processing                                                           Parallel processing                           Animation/Visualization (vtk_animation)
+    |_____________________________________________________________________________________________________________________________________________________________________    											|                                                                                       |                                                                 |
+		|       										|                                                                 |
+		|       										|                                                                 |
+		|      										        |                                                                 |    
+		|                                                                                       |                                                                 |_ figures
+		|                                                                                       |                                                                 |
+		|                                                                                       |                                                                 |
+		|_ Input    										|_ Input                                                          |_ A94962_scenario21_tree_simulation.csv  # can be another file
+		|    |                                                                                  |    |                                                            |
+		|    |_ Individual_tree_ simulator.levels.csv                                           |    |_ Individual_tree_ simulator.levels.csv                     |
+		|    |_ Individual_tree_ simulator.MeanAnnualTemp.csv                                   |    |_ Individual_tree_ simulator.MeanAnnualTemp.csv             |_ convert_to_json.py
+		|    |_ Management_Alternatives.csv                                                     |    |_ Management_Alternatives.csv                               |
+		|    |_ Individual_tree_ simulator.pl.csv                                               |    |_ Individual_tree_ simulator.pl.csv                         |
+		|    |_ Individual_tree_ simulator.tr.csv                                               |    |_ Individual_tree_ simulator.tr.csv                         |_ A94962_scenario21_tree_simulation.json # can be another file
+		|                                                                                       |                                                                 |
+		|                                                                                       |                                                                 |
+		|                                                                                       |                                                                 |_ animation.py
+		|_ tools               								        |_ tools                                                          |
+		|                                                                                       |                                                                 |
+		|                                                                                       |                                                                 |_ graph_animator.py
+		|_ outputMgt  # management mic type output                                              |_ outputMgt   # management mic type output                       |
+		|                                                                                       |                                                                 |
+		|                                                                                       |                                                                 |_ timer_animator.py
+		|_ outputs    # Plot level outputs                                                      |_ outputs    # Plot level outputs                                |
+		|                                                                                       |                                                                 |
+		|                                                                                       |                                                                 |_ figures 
+		|_ Tree_Simulated_Data  # Tree level outputs                                            |_ Tree_Simulated_Data  # Tree level outputs                           |
+		|                                                                                       |                                                                      |
+		|                                                                                       |                                                                      |_  Tree_animation.gif
+		|_ Main.py ---> SELECT SITE INDEX                                                       |_ parallel_computing.py                                                             
+		|                                                                                       |
+		|                                                                                       |
+		|_ simulation.py  ---> SELECT SITE INDEX                                                |
+		|                                                                                       |_ Main11.py
+		|                                                                                       |_ Main20.py
+		|_ Tree_Models.py                                                                       |_ simulation11.py
+		|                                                                                       |_ simulation20.py
+		|                                                                                       |_ Tree_Models11.py
+		|_ Plot_Models.py                                                                       |_ Tree_Models20.py
+		|                                                                                       |_ Plot_Models11.py
+		|                                                                                       |_ Plot_Models20.py
+		|_ yasso.py                                                                             |_ yasso.py
+		|                                                                                       |
+		|                                                                                       |
+		|_ titles_NewTree.py                                                                    |_ titles_NewTree.py
+		|_ titles_tree.py                                                                       |_ titles_tree.py

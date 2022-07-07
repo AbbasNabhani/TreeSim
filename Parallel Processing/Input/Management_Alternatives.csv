@@ -1,0 +1,36 @@
+MIC_no,MIC_type,Site index,dominant_stand,harvesting_method,Regen_method,Site_prep_after_harvesting,Regen species,Regen density ,Waiting time,Fertilization,NR_Species ,NR_N_ha,Thinn,thin.height.min,thin.height.max,min_ba_before_thinning,max_ba_after_thinning
+1,High_pine,GE_15.5,Pine,clear_cut,Planting     ,yes,Pine,2200,5,yes,no,0,thin,12,15,35,22
+2,High_pine,GE_15.5,Pine,seed_tree_cut,NR_under_seed_trees,yes,Pine,2200,15,no,no,0,no_thin,0,0,,
+3,High_pine,GE_15.5,Pine,seed_tree_cut,NR_under_seed_trees,yes,Pine,2200,15,no,no,0,thin,12,15,35,22
+4,Medium_pine,GE_15.5,Pine,seed_tree_cut,NR_under_seed_trees,no,Pine,1500,15,no,Birch ,200,no_thin,0,0,,
+5,Medium_pine,GE_15.5,Pine,seed_tree_cut,NR_under_seed_trees,no,Pine,1500,15,no,Birch ,200,thin,12,15,35,22
+6,High_spruce,GE_15.5,none,clear_cut,Planting,yes,Spruce,3000,10,yes,no,0,thin,12,15,35,22
+7,High_spruce,GE_15.5,none,clear_cut,Planting,yes,Spruce,3000,10,no,no,0,no_thin,0,0,,
+8,High_spruce,GE_15.5,none,clear_cut,Planting,yes,Spruce,3000,10,no,no,0,thin,12,15,35,24
+9,Medium_spruce,GE_15.5,none,clear_cut,Planting,no,Spruce,2500,10,no,Birch ,200,no_thin,0,0,,
+10,Medium_spruce,GE_15.5,none,clear_cut,Planting,no,Spruce,2500,10,no,Birch ,200,thin,12,15,35,24
+11,Low_spruce,GE_15.5,none,clear_cut,Planting,no,Spruce,1800,10,no,Birch ,200,no_thin,0,0,,
+12,broadleaf,GE_15.5,none,clear_cut,NR,no,Birch,2000,15,no,spruce,400,no_thin,0,0,,
+13,No_man,GE_15.5,none,none,none,no,none,0,10,no,spruce+birch,500+500,no_thin,0,0,,
+1,High_pine,10.5-15.5,Pine,clear_cut,Planting,yes,Pine,1800,10,yes,no,0,thin,12,15,35,22
+2,High_pine,10.5-15.5,Pine,seed_tree_cut,NR_under_seed_trees,yes,Pine,1800,20,no,no,0,no_thin,0,0,,
+3,High_pine,10.5-15.5,Pine,seed_tree_cut,NR_under_seed_trees,yes,Pine,1800,20,no,no,0,thin,12,15,35,20
+4,Medium_pine,10.5-15.5,Pine,seed_tree_cut,NR_under_seed_trees,no,Pine,1200,20,no,Birch ,200,no_thin,0,0,,
+5,Medium_pine,10.5-15.5,Pine,seed_tree_cut,NR_under_seed_trees,no,Pine,1200,15,no,Birch ,200,thin,12,15,35,20
+6,High_spruce,10.5-15.5,none,clear_cut,Planting,yes,Spruce,2000,15,yes,no,0,thin,12,15,35,22
+7,High_spruce,10.5-15.5,none,clear_cut,Planting,yes,Spruce,2000,15,no,no,0,no_thin,0,0,,
+8,High_spruce,10.5-15.5,none,clear_cut,Planting,yes,Spruce,2000,15,no,no,0,thin,12,15,35,20
+9,Medium_spruce,10.5-15.5,none,clear_cut,Planting,no,Spruce,1500,15,no,Birch ,200,no_thin,0,0,,
+10,Medium_spruce,10.5-15.5,none,clear_cut,Planting,no,Spruce,1500,15,no,Birch ,200,thin,12,15,35,20
+11,Low_spruce,10.5-15.5,none,clear_cut,Planting,no,Spruce,1200,15,no,Birch,200,no_thin,0,0,,
+12,broadleaf,10.5-15.5,none,clear_cut,NR,no,Birch,1000,20,no,spruce ,200,no_thin,0,0,,
+13,No_man,10.5-15.5,none,none,none,no,none,0,15,no,spruce+birch,300+300,no_thin,0,0,,
+1,High_pine,L_10.5,Pine,clear_cut,Planting,yes,Pine,1800,15,no,no,0,no_thin,0,0,,
+2,High_pine,L_10.5,Pine,seed_tree_cut,NR_under_seed_trees,yes,Pine,1800,25,no,no,0,no_thin,0,0,,
+3,Medium_pine,L_10.5,Pine,seed_tree_cut,NR_under_seed_trees,no,Pine,1200,25,no,Birch,200,no_thin,0,0,,
+4,High_spruce,L_10.5,none,clear_cut,Planting,yes,Spruce,2000,15,no,no,0,no_thin,0,0,,
+5,High_spruce,L_10.5,none,clear_cut,Planting,yes,Spruce,2000,15,no,no,0,no_thin,0,0,,
+6,Medium_spruce,L_10.5,none,clear_cut,Planting,no,Spruce,1500,15,no,Birch ,200,no_thin,0,0,,
+7,Low_spruce,L_10.5,none,clear_cut,Planting,no,Spruce,1200,15,no,Birch ,200,no_thin,0,0,,
+8,broadleaf,L_10.5,none,clear_cut,NR,no,Birch,1000,25,no,spruce ,200,no_thin,0,0,,
+9,No_man,L_10.5,none,none,none,no,none,0,25,no,spruce+birch,100+200,no_thin,0,0,,
