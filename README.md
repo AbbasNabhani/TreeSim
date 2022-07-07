@@ -5,7 +5,7 @@
 <h1 bgcolor="#rrggbb">
 <div align="center">
 <a href="https://github.com/AbbasNabhani/TreeSim/releases/latest">
-<img src="https://img.shields.io/github/release-pre/AbbasNabhani/TreeSim.svg" alt="Github release" /></a>
+<img src="https://img.shields.io/github/AbbasNabhani/TreeSim.svg" alt="Github release" /></a>
 <a href="">
 <img src="https://img.shields.io/github/downloads/AbbasNabhani/TreeSim/total.svg" alt="Release downloads" /></a>
 
