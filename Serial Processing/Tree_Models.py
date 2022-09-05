@@ -10037,14 +10037,14 @@ class GrowthModel():
                         G_before      = G_before
                         R_BA          = R_BA
                         ba[t]         = self.DERIVED_TREES[t].ba
-                        BGB              = self.DERIVED_TREES[t].BGB
-                        Tot_co2          = self.DERIVED_TREES[t].Tot_co2
-                        Tot_biomass      = self.DERIVED_TREES[t].Tot_biomass
-                        Total_carbon     = self.DERIVED_TREES[t].Total_carbon  
-                        Tot_carbon_stems = self.DERIVED_TREES[t].Tot_carbon_stems 
-                        Tot_carbon_roots = self.DERIVED_TREES[t].Tot_carbon_roots 
-                        Tot_co2_stems    = self.DERIVED_TREES[t].Tot_co2_stems
-                        Tot_co2_roots    = self.DERIVED_TREES[t].Tot_co2_roots 
+                        BGB[t]               = self.DERIVED_TREES[t].BGB
+                        Tot_co2[t]           = self.DERIVED_TREES[t].Tot_co2
+                        Tot_biomass[t]       = self.DERIVED_TREES[t].Tot_biomass
+                        Total_carbon[t]      = self.DERIVED_TREES[t].Total_carbon  
+                        Tot_carbon_stems[t]  = self.DERIVED_TREES[t].Tot_carbon_stems 
+                        Tot_carbon_roots[t]  = self.DERIVED_TREES[t].Tot_carbon_roots 
+                        Tot_co2_stems[t]     = self.DERIVED_TREES[t].Tot_co2_stems
+                        Tot_co2_roots[t]     = self.DERIVED_TREES[t].Tot_co2_roots 
                         volsum[t]     = self.tree_volume(t, n_tree, aboveBark= True)[0]
                         vol_spruce[t] = self.tree_volume(t, n_tree, aboveBark= True)[1]
                         vol_pine[t]   = self.tree_volume(t, n_tree, aboveBark= True)[2]
