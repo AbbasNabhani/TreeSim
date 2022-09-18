@@ -1217,6 +1217,8 @@ class GrowthModel():
         
         if INC1 > 100:    # a 5-year increment should not go over 100 mm 
             INC1 = 100
+        if INC1 < 0:
+            INC1 = 0 
             
         return DBH + INC1
     
@@ -1244,7 +1246,9 @@ class GrowthModel():
         
         if INC > 300:   # a 5-year increment should not go over 3 m (60 cm/year)
             INC = 300
-        
+        if INC < 0:
+            INC = 0 
+            
         return round(Ht+INC)
     
                                                 # %%%%%      Calculate New Diameter class     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        

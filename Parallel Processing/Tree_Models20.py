@@ -1217,7 +1217,8 @@ class GrowthModel():
         
         if INC1 > 100:    # a 5-year increment should not go over 100 mm 
             INC1 = 100
-            
+        if INC1 < 0:
+            INC1 = 0            
 #        if Ht > 70 and self.t <=:    # If height threshold of 7 m is reached for young stands
 #            INC1 = 0
 #        self.GROWTH.append((k, DBH, INC1)) 
@@ -1256,7 +1257,8 @@ class GrowthModel():
         
         if INC > 300:   # a 5-year increment should not go over 3 m (60 cm/year)
             INC = 300
-            
+        if INC < 0:
+            INC = 0            
 #        if Ht > 70 and self.t <= :    # If height treshold of 7 m is reached  for young stands
 #            INC = 0
             
