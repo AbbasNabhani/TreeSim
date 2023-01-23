@@ -97,7 +97,7 @@ class Data():
       - Input file
       - Name of the instance
       """
-#    heights= {}
+
     def __init__(self,jobDir):
         self.jobDir = jobDir
         self.input = os.path.join(jobDir,'Input')

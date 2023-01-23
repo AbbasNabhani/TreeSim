@@ -67,9 +67,6 @@ def mkdir(name):
         os.mkdir(name)
     assert os.path.isdir(name) 
     
-# from simulation import Data, tree, plot, Management_prescription, Simulator 
-# from Plot_Models import Spruce, Pine,ROS,Birch,Other_broadleaves
-# from Tree_Models import GrowthModel
 
 SiteIndex_list = [6, 7, 8, 11, 12, 14, 17, 20, 23, 26]
 spruce_species = (1,2,3)
