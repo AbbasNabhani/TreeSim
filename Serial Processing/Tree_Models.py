@@ -3285,7 +3285,7 @@ class GrowthModel():
      
                                                     # %%%%%    Models for the remaining fraction of mass of deadwoods    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
     
-    def deadwood_decay_mass(self): #, M_spti_1, M_spti_2, M_spti_3, M_spti_4, M_spti_5,M_spti_6
+    def deadwood_decay_mass(self):
         
         """
         according to Mäkinen et al. (2006), this function calculate the remaining fraction of mass of f Scots pine, Norway spruce, and birch
@@ -3308,7 +3308,7 @@ class GrowthModel():
         """
                
         Deadtrees = [k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0]
-#        print(Deadtrees)
+
         
         Deadtrees_spruce = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].species == "spruce"])) 
         Deadtrees_pine = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].species == "scots_pine"])) 
@@ -3448,37 +3448,7 @@ class GrowthModel():
                 Decomposition_warm    =  Mass_warm - M_remain_warm
                 Total_V_remain_warm  += M_remain_warm
                 T_Decomposition_warm += Decomposition_warm
-            
         
-            
-#        #GrowthModel.GROWTH.append((remain_fraction_spruce,y_spti_spruce)) 
-#        M_spt0_spruce = Mass_spruce #+ M_spti_1
-#        M_spt0_pine = Mass_pine #+ M_spti_2
-#        M_spt0_birch = Mass_birch #+ M_spti_3
-#        M_spt0_others = Mass_others #+ M_spti_4
-#        M_spt0_ROS = Mass_ROS #+ M_spti_5
-#        M_spt0_warm = Mass_warm #+ M_spti_6
-#        
-#        M_spti_spruce = M_spt0_spruce * remain_fraction_spruce
-#        Decomposition_spruce = M_spt0_spruce - M_spti_spruce
-#
-#        
-#        M_spti_pine = M_spt0_pine * remain_fraction_pine
-#        Decomposition_pine = M_spt0_pine - M_spti_pine
-#
-#        
-#        M_spti_birch = M_spt0_birch * remain_fraction_birch
-#        Decomposition_birch = M_spt0_birch - M_spti_birch
-#
-#        
-#        M_spti_others = M_spt0_others * remain_fraction_others
-#        Decomposition_other = M_spt0_others - M_spti_others
-#
-#        M_spti_ROS = M_spt0_ROS * remain_fraction_ROS
-#        Decomposition_ROS = M_spt0_ROS - M_spti_ROS
-#
-#        M_spti_warm = M_spt0_warm * remain_fraction_warm
-#        Decomposition_warm = M_spt0_warm - M_spti_warm
 
         
         Decomposition=  T_Decomposition_spruce + T_Decomposition_pine +T_Decomposition_birch + T_Decomposition_others + T_Decomposition_ROS + T_Decomposition_warm 
@@ -3488,7 +3458,7 @@ class GrowthModel():
         
         
         
-        return  Dead_wood_co2, Dead_wood_carbon #M_spti_spruce, M_spti_pine, M_spti_birch, M_spti_others, M_spti_ROS, M_spti_warm, 
+        return  Dead_wood_co2, Dead_wood_carbon 
     
     
     
@@ -3532,12 +3502,6 @@ class GrowthModel():
         Deadtrees_other = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0 and GrowthModel.DERIVED_TREES[k].species == "other_broadleaves"]))
         Deadtrees_ROS = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0 and GrowthModel.DERIVED_TREES[k].species == "ROS"]))
         Deadtrees_warm = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0 and GrowthModel.DERIVED_TREES[k].species == "warm"]))       
-#        keysP1 = [k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0]
-#        valuesP1= [GrowthModel.DERIVED_TREES[k].DeadList['yr_since_dead'] for k in keysP1]
-#        keysP0 = keysP0
-#        valuesP0 = valuesP0
-#        y_spti = dict(zip(keysP1, valuesP1))
-#        y_spt0 = dict(zip(keysP0, valuesP0))
 
 
         
@@ -3581,7 +3545,7 @@ class GrowthModel():
         dbh_spt0_spruce, dbh_spt0_pine, dbh_spt0_birch,dbh_spt0_other, dbh_spt0_ROS, dbh_spt0_warm = 0., 0., 0., 0., 0., 0.
         
         for stem in Deadtrees:
-#            GrowthModel.GROWTH.append((stem, GrowthModel.DERIVED_TREES[stem].Period, GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead']))
+#           
             if self.DERIVED_TREES[stem].species == "spruce":
                 volume_spruce    =  GrowthModel.DERIVED_TREES[stem].dead_volume 
                 T_volume_spruce += volume_spruce
@@ -3668,12 +3632,7 @@ class GrowthModel():
                 Total_V_remain_warm  += V_remain_warm
                 T_Decomposition_warm += Decomposition_warm             
        
-#        V_spti_spruce = Total_V_remain_spruce - V_spt0_spruce
-#        V_spti_pine = Total_V_remain_pine - V_spt0_pine
-#        V_spti_birch = Total_V_remain_birch - V_spt0_birch
-#        V_spti_others = Total_V_remain_others - V_spt0_others
-#        V_spti_ROS = Total_V_remain_ROS - V_spt0_ROS
-#        V_spti_warm = Total_V_remain_warm - V_spt0_warm
+
 
 
         volume_deadwood_p0 = volume_deadwood_p0
@@ -3697,7 +3656,7 @@ class GrowthModel():
         else:
             points = 0           
 #        GrowthModel.GROWTH.append((points))    
-        return  volume_deadwood, Decomposition, points, volume_deadwood #, volume_deadwood_NoDecay , valuesP1, keysP1
+        return  volume_deadwood, Decomposition, points, volume_deadwood 
 
 
                                                 # %%%%%    Biodiversity indicator - Species richness  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 

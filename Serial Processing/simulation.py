@@ -2100,7 +2100,6 @@ class Simulator():
             Volume_deadwood         = float(format(Dead_wood_vol_tuple[0],'.2f'))
             BI3                     = Dead_wood_vol_tuple[2]
             volume_deadwood_p0      = float(format(Dead_wood_vol_tuple[3],'.2f'))
-#            ds.NoDecayDead[i]        = Dead_wood_vol_tuple[3]
             ds.Deadwood[i]          = Volume_deadwood
                                   
             
@@ -2127,7 +2126,6 @@ class Simulator():
             ds.BI1[i]  = BI1
             ds.BI2[i]  = BI2
             ds.BI3[i]  = BI3
-#            Simulator.GROWTH1.append((i,ds.NoDecayDead[i], ds.BI3[i]))
             ds.BI4[i]  = BI4
             ds.BI5[i]  = BI5
             

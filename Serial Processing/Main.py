@@ -161,7 +161,7 @@ else:
 ##*******************************************************************************     
   
 for x in tqdm(plots.keys()):  
-    if plots[x] == __SI__:# and x == "C01102":
+    if plots[x] == __SI__:
         print(x)        
         for scenario in scenarios:
             uniqueNO = 0
@@ -405,15 +405,7 @@ for x in tqdm(plots.keys()):
                                               'coord_y': Tree_Models.GrowthModel.TITLES[i][j].coord_y, 'year': Tree_Models.GrowthModel.TITLES[i][j].year, 'volsum': Tree_Models.GrowthModel.TITLES[i][j].volsum, 'vol_spruce': Tree_Models.GrowthModel.TITLES[i][j].vol_spruce, 'vol_pine': Tree_Models.GrowthModel.TITLES[i][j].vol_pine,
                                               'vol_birch': Tree_Models.GrowthModel.TITLES[i][j].vol_birch, 'vol_others': Tree_Models.GrowthModel.TITLES[i][j].vol_others, 'vol_ROS': Tree_Models.GrowthModel.TITLES[i][j].vol_ROS, 'vol_warm': Tree_Models.GrowthModel.TITLES[i][j].vol_warm, 'management':Tree_Models.GrowthModel.TITLES[i][j].management})   
                             
-                        # print(simrun._to_string())
-                        # simulation.Simulator.plots(simrun)
-                        #print((Plot_Models.Other_broadleaves.GROWTH2))
-                        #print(max(Tree_Models.GrowthModel.GROWTH))
-#                        print(Tree_Models.GrowthModel.GROWTH)
-                        # print(Tree_Models.GrowthModel.DERIVED_TREES)
-                        # print(Tree_Models.GrowthModel.Periods_dict)
-#                        print((simulation.Simulator.GROWTH1))
-                        # print(prob.Dominant_Height(x))
+
                     else:
                         #print("\n\n\nThere is no tree in this plot.\n")
                         
@@ -428,16 +420,7 @@ for x in tqdm(plots.keys()):
                                                   'vol_pine': prob.TITLES[i].vol_pine,'vol_birch': prob.TITLES[i].vol_birch,'vol_others': prob.TITLES[i].vol_others,'vol_ROS': prob.TITLES[i].vol_ROS,
                                                   'vol_warm': prob.TITLES[i].vol_warm})
                          
-                    
-
     
-              
-#print(Tree_Models.GrowthModel.DeadTrees['110191'][1])
-#print(Tree_Models.GrowthModel.DeadListDict['110191'][1])
-#simulation.Simulator.boxplots(simrun)
-
-#prob.readtreeData()
-
 
 
 
