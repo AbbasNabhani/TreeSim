@@ -419,8 +419,6 @@ for x in tqdm(plots.keys()):
                                                   'SI_m': prob.TITLES[i].SI_m, 't_age': prob.TITLES[i].t_age,'volsum': prob.TITLES[i].volsum,'vol_spruce': prob.TITLES[i].vol_spruce,
                                                   'vol_pine': prob.TITLES[i].vol_pine,'vol_birch': prob.TITLES[i].vol_birch,'vol_others': prob.TITLES[i].vol_others,'vol_ROS': prob.TITLES[i].vol_ROS,
                                                   'vol_warm': prob.TITLES[i].vol_warm})
-                         
-    
 
 
 

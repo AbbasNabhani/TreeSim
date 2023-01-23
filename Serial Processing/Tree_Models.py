@@ -3638,10 +3638,7 @@ class GrowthModel():
         volume_deadwood_p0 = volume_deadwood_p0
         Decomposition= T_Decomposition_spruce + T_Decomposition_pine + T_Decomposition_birch + T_Decomposition_others + T_Decomposition_ROS + T_Decomposition_warm
         volume_deadwood = Total_V_remain_spruce + Total_V_remain_pine + Total_V_remain_birch + Total_V_remain_others + Total_V_remain_ROS + Total_V_remain_warm
-#        volume_deadwood = V_spti_spruce + V_spti_pine + V_spti_birch + V_spti_others + V_spti_ROS + V_spti_warm
-        
-#        volume_deadwood_NoDecay = T_volume_spruce + T_volume_pine + T_volume_birch + T_volume_others + T_volume_ROS + T_volume_warm
-#        GrowthModel.GROWTH.append((volume_spruce,  ))
+
 #        points = 0
 #        if volume_deadwood >= 20:
 #            points = 100

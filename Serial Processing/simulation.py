@@ -2140,7 +2140,6 @@ class Simulator():
             else:
                  ds.Dead_wood_co2[i]     =  float(format(ds.Dead_wood_co2[i],'.2f'))    
             
-#            ds.Dead_wood_biomass[i] = float(format(ds.Dead_wood_biomass[i] ,'.2f'))  
             
             if (ds.Nr[i] > 0): ds.tst[i] = 0
             ds.Na[i] = float(format(ds.Nb[i] - ds.Nr[i],'.2f'))             
