@@ -24,11 +24,11 @@ output_type = "Growth & yield curve"                                            
 #__SI__ = 6
 #__SI__ = 7
 #__SI__ = 8
-__SI__ = 11
+#__SI__ = 11
 #__SI__ = 12
 #__SI__ = 14
 #__SI__ = 17
-#__SI__ = 20
+__SI__ = 20
 #__SI__ = 23
 #__SI__ = 26
 
@@ -45,7 +45,7 @@ from tqdm import tqdm
 locale.setlocale(locale.LC_ALL, '')
 import matplotlib.pyplot as plt
 import time
-import collections
+#import collections
 from collections import defaultdict
 import importlib 
 import simulation
@@ -84,6 +84,7 @@ full_path = os.path.realpath(__file__)
 directory = os.path.dirname(full_path)
 
 jobDirectory = os.path.join(current_working_directory(directory), "Input/")
+
 plotData ='Individual_tree_ simulator.pl'
 treeData = 'Individual_tree_ simulator.tr'
 suffix='.csv'
@@ -94,8 +95,8 @@ mkdir("Tree_Simulated_Data")
 filename1 = jobDirectory + plotData + suffix
 filename2 = jobDirectory + treeData + suffix
 
-plots= collections.defaultdict(dict)
-trees= collections.defaultdict(dict)
+plots= defaultdict(dict)
+trees= defaultdict(dict)
 plots_list = []
 
 with open(filename1) as f:
@@ -151,7 +152,7 @@ else:
 """  Generating Scenarios """          
 if (__SI__ >= 15.5):
     scenarios = [x for x in range(1,14)]
-
+    
 elif (__SI__ < 15.5) and (__SI__ >= 10.5):
     scenarios = [x for x in range(1,14)]
 else:
@@ -160,200 +161,200 @@ else:
 ##*******************************************************************************     
   
 for x in tqdm(plots.keys()):  
-    if plots[x] == __SI__: # and x == "A100201":
+    if plots[x] == __SI__:# and x == "C01102":
         print(x)        
         for scenario in scenarios:
             uniqueNO = 0
             if (__SI__ >= 15.5)  and scenario in [1,2,3]:
                 MIC_type = Mic_pine[0]
                 if __SI__ == 26:              
-                    harvest_periods = [40, 60, 80]#, 100, 120, 140, 160]
+                    harvest_periods = [40, 100, 160]#, 60, 120, 140, 80]
                 elif __SI__ == 23:
-                    harvest_periods = [45, 65, 85]#, 105, 125, 145]
+                    harvest_periods = [45, 105, 145]#, 65, 125, 85]
                 elif __SI__ == 20:
-                    harvest_periods = [50, 70, 90]#, 110, 130, 150]
+                    harvest_periods = [50, 110, 150]#, 70, 130, 90]
                 elif __SI__ == 17:
-                    harvest_periods = [60, 80, 100]#, 120, 140, 160]
+                    harvest_periods = [60, 120, 160]#, 80, 140, 100]
                 
             elif  ((__SI__ < 15.5) and (__SI__ >= 10.5)) and scenario in [1,2,3]:
                 MIC_type = Mic_pine[0]
                 if __SI__ == 14:
-                    harvest_periods = [70, 90, 110]#, 130, 150] 
+                    harvest_periods = [70, 110, 150]#, 130, 90] 
                 elif __SI__ == 11 or __SI__ == 12:
-                    harvest_periods = [80, 100, 120]#, 140, 160]
+                    harvest_periods = [80, 120, 160]#, 140, 100]
                 
             elif (__SI__ >= 15.5)  and scenario in [4,5]: 
                 MIC_type = Mic_pine[1]
                 if __SI__ == 26:              
-                    harvest_periods = [40, 60, 80]#, 100, 120, 140, 160]
+                    harvest_periods = [40, 100, 160]#, 60, 120, 140, 80]
                 elif __SI__ == 23:
-                    harvest_periods = [45, 65, 85]#, 105, 125, 145]
+                    harvest_periods = [45, 85, 145]#, 65, 125, 105]
                 elif __SI__ == 20:
-                    harvest_periods = [50, 70, 90]#, 110, 130, 150]
+                    harvest_periods = [50, 90, 150]#, 70, 130, 110]
                 elif __SI__ == 17:
-                    harvest_periods = [60, 80, 100]#, 120, 140, 160]
+                    harvest_periods = [60, 100, 160]#, 120, 140, 80]
             
             elif ((__SI__ < 15.5) and (__SI__ >= 10.5)) and scenario in [4,5]: 
                 MIC_type = Mic_pine[1]
                 if __SI__ == 14:
-                    harvest_periods = [70, 90, 110]#, 130, 150] 
+                    harvest_periods = [70, 110, 150]#, 130, 90] 
                 elif __SI__ == 11 or __SI__ == 12:
-                    harvest_periods = [80, 100, 120]#, 140, 160]
+                    harvest_periods = [80, 120, 160]#, 140, 100]
                 
             elif (__SI__ >= 15.5) and scenario in [6,7,8]:   
                 MIC_type = Mic_spruce[0]
                 if __SI__ == 26:              
-                    harvest_periods = [40, 60, 80]#, 100, 120, 140, 160]
+                    harvest_periods = [40, 100, 160]#, 60, 120, 140, 80]
                 elif __SI__ == 23:
-                    harvest_periods = [45, 65, 85]#, 105, 125, 145]
+                    harvest_periods = [45, 105, 145]#, 65, 125, 85]
                 elif __SI__ == 20:
-                    harvest_periods = [50, 70, 90]#, 110, 130, 150]
+                    harvest_periods = [50, 90, 150]#, 70, 130, 110]
                 elif __SI__ == 17:
-                    harvest_periods = [60, 80, 100]#, 120, 140, 160]
+                    harvest_periods = [60, 100, 160]#, 120, 140, 80]
 
             elif ((__SI__ < 15.5) and (__SI__ >= 10.5)) and scenario in [6,7,8]:   
                 MIC_type = Mic_spruce[0]
                 if __SI__ == 14:
-                    harvest_periods = [70, 90, 110]#, 130, 150] 
+                    harvest_periods = [70, 110, 150]#, 130, 90] 
                 elif __SI__ == 11 or __SI__ == 12:
-                    harvest_periods = [80, 100, 120]#, 140, 160]
+                    harvest_periods = [80, 120, 160]#, 140, 100]
                 
             elif (__SI__ >= 15.5) and scenario in [9,10]: 
                 MIC_type = Mic_spruce[1]
                 if __SI__ == 26:              
-                    harvest_periods = [40, 60, 80]#, 100, 120, 140, 160]
+                    harvest_periods = [40, 100, 160]#, 60, 120, 140, 80]
                 elif __SI__ == 23:
-                    harvest_periods = [45, 65, 85]#, 105, 125, 145]
+                    harvest_periods = [45, 85, 145]#, 105, 125, 65]
                 elif __SI__ == 20:
-                    harvest_periods = [50, 70, 90]#, 110, 130, 150]
+                    harvest_periods = [50, 90, 150]#, 110, 130, 70]
                 elif __SI__ == 17:
-                    harvest_periods = [60, 80, 100]#, 120, 140, 160]
+                    harvest_periods = [60, 100, 160]#, 120, 140, 80]
                 
             elif ((__SI__ < 15.5) and (__SI__ >= 10.5)) and scenario in [9,10]: 
                 MIC_type = Mic_spruce[1]
                 if __SI__ == 14:
-                    harvest_periods = [70, 90, 110]#, 130, 150] 
+                    harvest_periods = [70, 110, 150]#, 130, 90] 
                 elif __SI__ == 11 or __SI__ == 12:
-                    harvest_periods = [80, 100, 120]#, 140, 160]
+                    harvest_periods = [80, 120, 160]#, 140, 100]
                 
             elif (__SI__ >= 15.5)  and scenario == 11: 
                 MIC_type = Mic_spruce[2]
                 if __SI__ == 26:              
-                    harvest_periods = [40, 60, 80]#, 100, 120, 140, 160]
+                    harvest_periods = [40, 100, 160]#, 60, 120, 140, 80]
                 elif __SI__ == 23:
-                    harvest_periods = [45, 65, 85]#, 105, 125, 145]
+                    harvest_periods = [45, 85, 145]#, 105, 125, 65]
                 elif __SI__ == 20:
-                    harvest_periods = [50, 70, 90]#, 110, 130, 150]
+                    harvest_periods = [50, 90, 150]#, 110, 130, 70]
                 elif __SI__ == 17:
-                    harvest_periods = [60, 80, 100]#, 120, 140, 160]
+                    harvest_periods = [60, 100, 160]#, 80, 140, 120]
                 
             elif ((__SI__ < 15.5) and (__SI__ >= 10.5)) and scenario == 11: 
                 MIC_type = Mic_spruce[2]
                 if __SI__ == 14:
-                    harvest_periods = [70, 90, 110]#, 130, 150] 
+                    harvest_periods = [70, 110, 150]#, 130, 90] 
                 elif __SI__ == 11 or __SI__ == 12:
-                    harvest_periods = [80, 100, 120]#, 140, 160]
+                    harvest_periods = [80, 120, 160]#, 140, 100]
             
             elif (__SI__ >= 15.5) and scenario == 12:         
                 MIC_type = Mic_brodleaf[0]
                 if __SI__ == 26:              
-                    harvest_periods = [40, 60, 80]#, 100, 120, 140, 160]
+                    harvest_periods = [40, 100, 160]#, 60, 120, 140, 80]
                 elif __SI__ == 23:
-                    harvest_periods = [45, 65, 85]#, 105, 125, 145]
+                    harvest_periods = [45, 85, 145]#, 105, 125, 65]
                 elif __SI__ == 20:
                     harvest_periods = [50, 70, 90]#, 110, 130, 150]
                 elif __SI__ == 17:
-                    harvest_periods = [60, 80, 100]#, 120, 140, 160]
+                    harvest_periods = [60, 100, 160]#, 120, 140, 80]
 
             elif ((__SI__ < 15.5) and (__SI__ >= 10.5)) and scenario == 12:         
                 MIC_type = Mic_brodleaf[0]
                 if __SI__ == 14:
-                    harvest_periods = [70, 90, 110]#, 130, 150] 
+                    harvest_periods = [70, 110, 150]#, 130, 90] 
                 elif __SI__ == 11 or __SI__ == 12:
-                    harvest_periods = [80, 100, 120]#, 140, 160]
+                    harvest_periods = [80, 120, 160]#, 140, 100]
                 
             elif (__SI__ >= 15.5) and scenario == 13:         
                 MIC_type = Mic_brodleaf[1]
                 if __SI__ == 26:              
-                    harvest_periods = [40, 60, 80]#, 100, 120, 140, 160]
+                    harvest_periods = [40, 100, 160]#, 60, 120, 140, 80]
                 elif __SI__ == 23:
-                    harvest_periods = [45, 65, 85]#, 105, 125, 145]
+                    harvest_periods = [45, 85, 145]#, 105, 125, 65]
                 elif __SI__ == 20:
-                    harvest_periods = [50, 70, 90]#, 110, 130, 150]
+                    harvest_periods = [50, 90, 150]#, 110, 130, 70]
                 elif __SI__ == 17:
-                    harvest_periods = [60, 80, 100]#, 120, 140, 160]
+                    harvest_periods = [60, 100, 160]#, 120, 140, 80]
             
             elif ((__SI__ < 15.5) and (__SI__ >= 10.5)) and scenario == 13:         
                 MIC_type = Mic_brodleaf[1] 
                 if __SI__ == 14:
-                    harvest_periods = [70, 90, 110]#, 130, 150] 
+                    harvest_periods = [70, 110, 150]#, 130, 90] 
                 elif __SI__ == 11 or __SI__ == 12:
-                    harvest_periods = [80, 100, 120]#, 140, 160]
+                    harvest_periods = [80, 120, 160]#, 140, 100]
                 
             elif (__SI__ < 10.5) and scenario in [1,2]:
                 MIC_type = Mic_pine[0]
                 if __SI__ == 8:
-                    harvest_periods = [85, 105, 125]#, 145]
+                    harvest_periods = [85, 105, 145]#, 125]
                 elif __SI__ == 7:
-                    harvest_periods = [90, 110, 130]#, 150]
+                    harvest_periods = [90, 110, 150]#, 130]
                 else:
-                    harvest_periods = [95, 115, 135]#, 155] 
+                    harvest_periods = [95, 115, 155]#, 135] 
                 
             elif (__SI__ < 10.5) and scenario == 3:
                 MIC_type = Mic_pine[1]
                 if __SI__ == 8:
-                    harvest_periods = [85, 105, 125]#, 145]
+                    harvest_periods = [85, 105, 145]#, 125]
                 elif __SI__ == 7:
-                    harvest_periods = [90, 110, 130]#, 150]
+                    harvest_periods = [90, 110, 150]#, 130]
                 else:
-                    harvest_periods = [95, 115, 135]#, 155] 
+                    harvest_periods = [95, 115, 155]#, 135] 
                 
             elif (__SI__ < 10.5) and scenario in [4,5]:
                 MIC_type = Mic_spruce[0]
                 if __SI__ == 8:
-                    harvest_periods = [85, 105, 125]#, 145]
+                    harvest_periods = [85, 105, 145]#, 125]
                 elif __SI__ == 7:
-                    harvest_periods = [90, 110, 130]#, 150]
+                    harvest_periods = [90, 110, 150]#, 130]
                 else:
-                    harvest_periods = [95, 115, 135]#, 155] 
+                    harvest_periods = [95, 115, 155]#, 135] 
                 
             elif (__SI__ < 10.5) and scenario == 6:
                 MIC_type = Mic_spruce[1]
                 if __SI__ == 8:
-                    harvest_periods = [85, 105, 125]#, 145]
+                    harvest_periods = [85, 105, 145]#, 125]
                 elif __SI__ == 7:
-                    harvest_periods = [90, 110, 130]#, 150]
+                    harvest_periods = [90, 110, 150]#, 130]
                 else:
-                    harvest_periods = [95, 115, 135]#, 155] 
+                    harvest_periods = [95, 115, 155]#, 135] 
                 
             elif (__SI__ < 10.5) and scenario == 7:
                 MIC_type = Mic_spruce[2]
                 if __SI__ == 8:
-                    harvest_periods = [85, 105, 125]#, 145]
+                    harvest_periods = [85, 105, 145]#, 125]
                 elif __SI__ == 7:
-                    harvest_periods = [90, 110, 130]#, 150]
+                    harvest_periods = [90, 110, 150]#, 130]
                 else:
-                    harvest_periods = [95, 115, 135]#, 155] 
+                    harvest_periods = [95, 115, 155]#, 135] 
                 
             elif (__SI__ < 10.5) and scenario == 8:
                 MIC_type = Mic_brodleaf[0]
                 if __SI__ == 8:
-                    harvest_periods = [85, 105, 125]#, 145]
+                    harvest_periods = [85, 105, 145]#, 125]
                 elif __SI__ == 7:
-                    harvest_periods = [90, 110, 130]#, 150]
+                    harvest_periods = [90, 110, 150]#, 130]
                 else:
-                    harvest_periods = [95, 115, 135]#, 155] 
+                    harvest_periods = [95, 115, 155]#, 135] 
                 
             elif (__SI__ < 10.5) and scenario == 9:
                 MIC_type = Mic_brodleaf[1] 
                 if __SI__ == 8:
-                    harvest_periods = [85, 105, 125]#, 145]
+                    harvest_periods = [85, 105, 145]#, 125]
                 elif __SI__ == 7:
-                    harvest_periods = [90, 110, 130]#, 150]
+                    harvest_periods = [90, 110, 150]#, 130]
                 else:
-                    harvest_periods = [95, 115, 135]#, 155] 
+                    harvest_periods = [95, 115, 155]#, 135] 
             
-            if MIC_type == Mic_brodleaf[1]:
+            if MIC_type == Mic_brodleaf[1]: # we don't harvest
                 harvest_periods = [50]
 
             
@@ -371,7 +372,7 @@ for x in tqdm(plots.keys()):
                     parser.add_argument("-f", dest= "jobDir", nargs= "+", metavar = "str", help="Working Directory for the job")
     
                     start = time.time()        
-                    args = parser.parse_args()   
+#                    args = parser.parse_args()   
                     jobDirectory = current_working_directory(directory)
                     if not os.path.isdir(jobDirectory):
                         print("ERROR: Directory %s not found."%(jobDirectory))
@@ -404,6 +405,15 @@ for x in tqdm(plots.keys()):
                                               'coord_y': Tree_Models.GrowthModel.TITLES[i][j].coord_y, 'year': Tree_Models.GrowthModel.TITLES[i][j].year, 'volsum': Tree_Models.GrowthModel.TITLES[i][j].volsum, 'vol_spruce': Tree_Models.GrowthModel.TITLES[i][j].vol_spruce, 'vol_pine': Tree_Models.GrowthModel.TITLES[i][j].vol_pine,
                                               'vol_birch': Tree_Models.GrowthModel.TITLES[i][j].vol_birch, 'vol_others': Tree_Models.GrowthModel.TITLES[i][j].vol_others, 'vol_ROS': Tree_Models.GrowthModel.TITLES[i][j].vol_ROS, 'vol_warm': Tree_Models.GrowthModel.TITLES[i][j].vol_warm, 'management':Tree_Models.GrowthModel.TITLES[i][j].management})   
                             
+                        # print(simrun._to_string())
+                        # simulation.Simulator.plots(simrun)
+                        #print((Plot_Models.Other_broadleaves.GROWTH2))
+                        #print(max(Tree_Models.GrowthModel.GROWTH))
+#                        print(Tree_Models.GrowthModel.GROWTH)
+                        # print(Tree_Models.GrowthModel.DERIVED_TREES)
+                        # print(Tree_Models.GrowthModel.Periods_dict)
+#                        print((simulation.Simulator.GROWTH1))
+                        # print(prob.Dominant_Height(x))
                     else:
                         #print("\n\n\nThere is no tree in this plot.\n")
                         
@@ -419,6 +429,15 @@ for x in tqdm(plots.keys()):
                                                   'vol_warm': prob.TITLES[i].vol_warm})
                          
                     
+
+    
+              
+#print(Tree_Models.GrowthModel.DeadTrees['110191'][1])
+#print(Tree_Models.GrowthModel.DeadListDict['110191'][1])
+#simulation.Simulator.boxplots(simrun)
+
+#prob.readtreeData()
+
 
 
 

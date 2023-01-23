@@ -1743,7 +1743,7 @@ class Simulator():
                                         'Na','Ga', 'Va' , 'Total_carbon_stock', 'carbon_living','co2_living','carbon_stems' , 'carbon_roots' , 'co2_stems' , 'co2_roots',
                                         'R_carbon','R_carbon_stems','R_co2_stems', 'R_carbon_roots' , 'R_co2_roots','R_co2','Dead_wood_co2' ,'Dead_wood_carbon',
                                         'R_SPulp','R_SSaw','R_PPulp', 'R_PSaw','R_HPulp','R_HSaw','soilC', 
-                                        'biodiversity'])):
+                                        'biodiversity', 'BI1', 'BI2', 'BI3','BI4', 'BI5', 'Richness','Shannon','Deadwood','Lsize_deciduous','Lsize_All'])):
        
         """Generates a dataset with the simulated stand table
         
@@ -1786,12 +1786,14 @@ class Simulator():
                                'HBI': 0., 'tst': -1.0, 'Initial_BGB_living': 0.,'Initial_co2_living': 0.,'Initial_biomass_living':0., 'Initial_carbon_living': 0.,'Initial_carbon_stems_living': 0.,
                                'Initial_carbon_roots_living': 0.,'Initial_co2_stems_living': 0.,'Initial_co2_roots_living': 0., 'biomass_living': 0., 'carbon_living': 0., 'R_carbon': 0.,'co2_living': 0.,
                                'R_BGB': 0.,'R_carbon_stems': 0.,'R_co2_stems': 0.,'R_carbon_roots': 0.,'R_co2_roots': 0.,
-                               'R_co2': 0., 'biodiversity': 0,'Live_biomass': 0., 'R_biomass': 0., 'Dead_wood_co2': 0., 'Dead_wood_biomass': 0., 'Dead_wood_carbon': 0.,'Total_carbon_stock':0., 
+                               'R_co2': 0., 'biodiversity': 0,'BI1': 0. ,'BI2': 0. ,'BI3': 0. ,'BI4': 0. ,'BI5': 0.,'Richness':0.,'Shannon':0.,'Deadwood':0.,'Lsize_deciduous':0.,'Lsize_All':0. ,
+                               'Live_biomass': 0., 'R_biomass': 0., 'Dead_wood_co2': 0., 'Dead_wood_biomass': 0., 'Dead_wood_carbon': 0.,'Total_carbon_stock':0., 
                                'carbon_stems':0.,  'carbon_roots':0.,  'co2_stems':0.,   'co2_roots':0.,'R_SSaw': 0., 'R_PSaw': 0. ,'R_HSaw': 0. ,'R_SPulp': 0.,'R_PPulp': 0.,'R_HPulp':0.,'soilC':0.,                
                                'interval':self.prescription.interval}, index=pd.Index(self.p,name='period'))
         
         Next_Rotation_age = 0.
         Thinn_age = 0
+        Number_Thinn = 1
         Establishment_age = 0
         Clear_cut_tag = False
         seed_tree_cut_tag = False
@@ -1803,10 +1805,7 @@ class Simulator():
         fertilization = False
         Site_prep_after_harvesting = False
          
-        # **************************************************************************************************
-        V_spti_1,V_spti_2,V_spti_3,V_spti_4, V_spti_5, V_spti_6 = 0., 0., 0., 0., 0., 0.
-        M_spti_1,M_spti_2,M_spti_3,M_spti_4, M_spti_5, M_spti_6 = 0., 0., 0., 0., 0., 0.
-
+        volume_deadwood_p0 = 0
         # ***************************************************************************************************
         dfGE_15 = self.prescription.management[self.prescription.management['Site index'] == "GE_15.5"]
         dfGE_15_MIC_no = dfGE_15["MIC_no"].unique().tolist()
@@ -1842,35 +1841,35 @@ class Simulator():
                 ds.mic_type[i] = "NONE"
             
             
-            ds.H0[i] = format((self.plot.fH0(Increment = False, **ds0)), '.2f')
+            ds.H0[i] = float(format((self.plot.fH0(Increment = False, **ds0)), '.2f'))
             ds.plot_id[i] = self.plot.plot_id
-#            ds.POT[i] = format((self.plot.fPOT(**ds0)), '.2f')
-            ds.Gb[i] = format((self.plot.fGp(i, **ds0)), '.2f')
+#            ds.POT[i] = float(format((self.plot.fPOT(**ds0)), '.2f'))
+            ds.Gb[i] = float(format((self.plot.fGp(i, **ds0)), '.2f'))
             ds.tst[i] =  ds0['tst'] + self.prescription.interval
             
             ds.mortality[i] =  self.plot.mortality        
             
             self.plot.UpdateTrees(ds.mortality[i], ds.Year[i], ds.p[i]) 
 
-            ds.Nb[i] = format((self.plot.fN(**ds0)), '.2f')
-            ds.HBI[i] = format((100 * np.sqrt(10000 / ds.Nb[i]) / ds.H0[i]), '.2f')
+            ds.Nb[i] = float(format((self.plot.fN(**ds0)), '.2f'))
+            ds.HBI[i] = float(format((100 * np.sqrt(10000 / ds.Nb[i]) / ds.H0[i]), '.2f'))
             VOLUME = self.plot.fV(i, **ds.loc[i])
-            ds.Vb[i]        = format(VOLUME[0], '.2f')  
-            ds.Vb_spruce[i] = format(VOLUME[1], '.2f')   
-            ds.Vb_pine[i]   = format(VOLUME[2], '.2f')
-            ds.Vb_birch[i]  = format(VOLUME[3], '.2f')
-            ds.Vb_others[i] = format(VOLUME[4], '.2f')
-            ds.Vb_ros[i]    = format(VOLUME[5], '.2f')
-            ds.Vb_warm[i]   = format(VOLUME[6], '.2f')
+            ds.Vb[i]        = float(format(VOLUME[0], '.2f'))  
+            ds.Vb_spruce[i] = float(format(VOLUME[1], '.2f'))   
+            ds.Vb_pine[i]   = float(format(VOLUME[2], '.2f'))
+            ds.Vb_birch[i]  = float(format(VOLUME[3], '.2f'))
+            ds.Vb_others[i] = float(format(VOLUME[4], '.2f'))
+            ds.Vb_ros[i]    = float(format(VOLUME[5], '.2f'))
+            ds.Vb_warm[i]   = float(format(VOLUME[6], '.2f'))
             
-            ds.Initial_BGB_living[i]           = format(self.plot.fCO(**ds0)[0],'.2f')
-            ds.Initial_co2_living[i]           = format(self.plot.fCO(**ds0)[1],'.2f') 
-            ds.Initial_biomass_living[i]       = format(self.plot.fCO(**ds0)[2],'.2f')            
-            ds.Initial_carbon_living[i]        = format(self.plot.fCO(**ds0)[3],'.2f')
-            ds.Initial_carbon_stems_living[i]  = format(self.plot.fCO(**ds0)[4],'.2f')
-            ds.Initial_carbon_roots_living[i]  = format(self.plot.fCO(**ds0)[5],'.2f')
-            ds.Initial_co2_stems_living[i]     = format(self.plot.fCO(**ds0)[6],'.2f')
-            ds.Initial_co2_roots_living[i]     = format(self.plot.fCO(**ds0)[7],'.2f')
+            ds.Initial_BGB_living[i]           = float(format(self.plot.fCO(**ds0)[0],'.2f'))
+            ds.Initial_co2_living[i]           = float(format(self.plot.fCO(**ds0)[1],'.2f')) 
+            ds.Initial_biomass_living[i]       = float(format(self.plot.fCO(**ds0)[2],'.2f'))            
+            ds.Initial_carbon_living[i]        = float(format(self.plot.fCO(**ds0)[3],'.2f'))
+            ds.Initial_carbon_stems_living[i]  = float(format(self.plot.fCO(**ds0)[4],'.2f'))
+            ds.Initial_carbon_roots_living[i]  = float(format(self.plot.fCO(**ds0)[5],'.2f'))
+            ds.Initial_co2_stems_living[i]     = float(format(self.plot.fCO(**ds0)[6],'.2f'))
+            ds.Initial_co2_roots_living[i]     = float(format(self.plot.fCO(**ds0)[7],'.2f'))
             
             
             ds.MIC_no[i] = self.scenario
@@ -1879,14 +1878,14 @@ class Simulator():
                 No_managed_tuple    = self.No_management(i, ds, ds0, Clear_cut_tag, seed_tree_cut_tag,Thinn_MS_tag,Thinn_MP_tag,Thinn_HS_tag,Thinn_HP_tag,Thinn_LS_tag, fertilization, Site_prep_after_harvesting)
                 Clear_cut_tag       = No_managed_tuple[0]
                 seed_tree_cut_tag   = No_managed_tuple[1]
-                #ds.MIC_no[i]        = format(No_managed_tuple[2], "d")
+                #ds.MIC_no[i]        = float(format(No_managed_tuple[2], "d"))
                 ds.mgt[i]           = No_managed_tuple[2]
                 
                 """
                 Implentation of Thinning
                 
                 """
-                Thinn_tuple         = self.Thinn_implementation(i, ds, ds0)
+                Thinn_tuple         = self.Thinn_implementation(i, ds, ds0, Number_Thinn)
                 Thinn_MS_tag        = Thinn_tuple[0]
                 Thinn_MP_tag        = Thinn_tuple[1] 
                 Thinn_HS_tag        = Thinn_tuple[2] 
@@ -1896,26 +1895,29 @@ class Simulator():
                 #Minimum_harvest_age = Thinn_tuple[5] 
                 Thinn_age           = Thinn_tuple[6] 
                 ds.mgt[i]           = Thinn_tuple[7] 
-                ds.Nr[i]            = format(Thinn_tuple[8],'.2f') 
-                ds.Gr[i]            = format(Thinn_tuple[9],'.2f') 
-                #ds.MIC_no[i]        =  format(Thinn_tuple[10], 'd')
+                ds.Nr[i]            = float(format(Thinn_tuple[8],'.2f')) 
+                ds.Gr[i]            = float(format(Thinn_tuple[9],'.2f'))
+                #ds.MIC_no[i]        =  float(format(Thinn_tuple[10], 'd'))
                 Product_tag_thinn   = Thinn_tuple[10]
-                ds.Vr_tot[i]        = format(Thinn_tuple[11],'.2f')
-                ds.Vr_spruce[i]     = format(Thinn_tuple[12],'.2f')
-                ds.Vr_pine[i]       = format(Thinn_tuple[13],'.2f')
-                ds.Vr_birch[i]      = format(Thinn_tuple[14],'.2f')
-                ds.Vr_others[i]     = format(Thinn_tuple[15],'.2f')
-                ds.Vr_ros[i]        = format(Thinn_tuple[16],'.2f')
-                ds.Vr_warm[i]       = format(Thinn_tuple[17],'.2f')
+                ds.Vr_tot[i]        = float(format(Thinn_tuple[11],'.2f'))
+                ds.Vr_spruce[i]     = float(format(Thinn_tuple[12],'.2f'))
+                ds.Vr_pine[i]       = float(format(Thinn_tuple[13],'.2f'))
+                ds.Vr_birch[i]      = float(format(Thinn_tuple[14],'.2f'))
+                ds.Vr_others[i]     = float(format(Thinn_tuple[15],'.2f'))
+                ds.Vr_ros[i]        = float(format(Thinn_tuple[16],'.2f'))
+                ds.Vr_warm[i]       = float(format(Thinn_tuple[17],'.2f'))
                 
-                ds.R_BGB[i]         = format(Thinn_tuple[18],'.2f')
-                ds.R_co2[i]         = format(Thinn_tuple[19],'.2f')
-                ds.R_biomass[i]     = format(Thinn_tuple[20],'.2f')
-                ds.R_carbon[i]      = format(Thinn_tuple[21],'.2f')
-                ds.R_carbon_stems[i]= format(Thinn_tuple[22],'.2f')
-                ds.R_carbon_roots[i]= format(Thinn_tuple[23],'.2f')
-                ds.R_co2_stems[i]   = format(Thinn_tuple[24],'.2f')
-                ds.R_co2_roots[i]   = format(Thinn_tuple[25],'.2f')
+                ds.R_BGB[i]         = float(format(Thinn_tuple[18],'.2f'))
+                ds.R_co2[i]         = float(format(Thinn_tuple[19],'.2f'))
+                ds.R_biomass[i]     = float(format(Thinn_tuple[20],'.2f'))
+                ds.R_carbon[i]      = float(format(Thinn_tuple[21],'.2f'))
+                ds.R_carbon_stems[i]= float(format(Thinn_tuple[22],'.2f'))
+                ds.R_carbon_roots[i]= float(format(Thinn_tuple[23],'.2f'))
+                ds.R_co2_stems[i]   = float(format(Thinn_tuple[24],'.2f'))
+                ds.R_co2_roots[i]   = float(format(Thinn_tuple[25],'.2f'))
+                
+                Number_Thinn        = Thinn_tuple[26]
+                
                 
                 
                 """
@@ -1927,12 +1929,12 @@ class Simulator():
                     
                     Timber_products_tuple = self.plot.fProducts(i)  
                     
-                    ds.R_SSaw[i]  = format(Timber_products_tuple[0],'.2f')
-                    ds.R_SPulp[i] = format(Timber_products_tuple[1],'.2f')
-                    ds.R_PSaw[i]  = format(Timber_products_tuple[2],'.2f')
-                    ds.R_PPulp[i] = format(Timber_products_tuple[3],'.2f')
-                    ds.R_HSaw[i]  = format(Timber_products_tuple[4],'.2f')
-                    ds.R_HPulp[i] = format(Timber_products_tuple[5],'.2f')
+                    ds.R_SSaw[i]  = float(format(Timber_products_tuple[0],'.2f'))
+                    ds.R_SPulp[i] = float(format(Timber_products_tuple[1],'.2f'))
+                    ds.R_PSaw[i]  = float(format(Timber_products_tuple[2],'.2f'))
+                    ds.R_PPulp[i] = float(format(Timber_products_tuple[3],'.2f'))
+                    ds.R_HSaw[i]  = float(format(Timber_products_tuple[4],'.2f'))
+                    ds.R_HPulp[i] = float(format(Timber_products_tuple[5],'.2f'))
                     
                                       
                 
@@ -1944,8 +1946,8 @@ class Simulator():
                 
                 fertilization_tuple = self.Fertilization_implementation(i , ds, ds0,Thinn_HS_tag,Thinn_HP_tag, Thinn_age,fertilization)
                 fertilization       = fertilization_tuple[0] 
-                #ds.MIC_no[i]        = format(fertilization_tuple[1] , 'd')
-                ds.Vra[i]           = format(fertilization_tuple[1],'.2f')
+                #ds.MIC_no[i]        = float(format(fertilization_tuple[1] , 'd'))
+                ds.Vra[i]           = float(format(fertilization_tuple[1],'.2f'))
                 ds.mgt[i]           = fertilization_tuple[2]
                 
                 """
@@ -1956,30 +1958,30 @@ class Simulator():
                 ClearCut_tuple              = self.ClearCut_Implementation(i , ds, ds0, Thinn_MS_tag,Thinn_LS_tag,Thinn_HS_tag,Thinn_HP_tag,Thinn_BL_tag, self.Harvest_age, Thinn_age, fertilization, Clear_cut_tag, Next_Rotation_age, Site_prep_after_harvesting, Establishment_age)
                 Clear_cut_tag               = ClearCut_tuple[0]
                 Site_prep_after_harvesting  = ClearCut_tuple[1]
-                #ds.MIC_no[i]        = format(ClearCut_tuple[2] , 'd') 
+                #ds.MIC_no[i]        = float(format(ClearCut_tuple[2] , 'd')) 
                 Next_Rotation_age           = ClearCut_tuple[2]
                 ds.mgt[i]                   = ClearCut_tuple[3]
-                ds.Nr[i]                    = format(ClearCut_tuple[4],'.2f')
-                ds.Gr[i]                    = format(ClearCut_tuple[5],'.2f')
+                ds.Nr[i]                    = float(format(ClearCut_tuple[4],'.2f'))
+                ds.Gr[i]                    = float(format(ClearCut_tuple[5],'.2f'))
                 Establishment_age           = ClearCut_tuple[6]
                 Product_tag_cc              = ClearCut_tuple[7]
                 
-                ds.Vr_tot[i]                = format(ClearCut_tuple[8],'.2f')
-                ds.Vr_spruce[i]             = format(ClearCut_tuple[9],'.2f')
-                ds.Vr_pine[i]               = format(ClearCut_tuple[10],'.2f')
-                ds.Vr_birch[i]              = format(ClearCut_tuple[11],'.2f')
-                ds.Vr_others[i]             = format(ClearCut_tuple[12],'.2f')
-                ds.Vr_ros[i]                = format(ClearCut_tuple[13],'.2f')
-                ds.Vr_warm[i]               = format(ClearCut_tuple[14],'.2f')
+                ds.Vr_tot[i]                = float(format(ClearCut_tuple[8],'.2f'))
+                ds.Vr_spruce[i]             = float(format(ClearCut_tuple[9],'.2f'))
+                ds.Vr_pine[i]               = float(format(ClearCut_tuple[10],'.2f'))
+                ds.Vr_birch[i]              = float(format(ClearCut_tuple[11],'.2f'))
+                ds.Vr_others[i]             = float(format(ClearCut_tuple[12],'.2f'))
+                ds.Vr_ros[i]                = float(format(ClearCut_tuple[13],'.2f'))
+                ds.Vr_warm[i]               = float(format(ClearCut_tuple[14],'.2f'))
                 
-                ds.R_BGB[i]                 = format(ClearCut_tuple[15],'.2f')
-                ds.R_co2[i]                 = format(ClearCut_tuple[16],'.2f')
-                ds.R_biomass[i]             = format(ClearCut_tuple[17],'.2f')
-                ds.R_carbon[i]              = format(ClearCut_tuple[18],'.2f')
-                ds.R_carbon_stems[i]        = format(ClearCut_tuple[19],'.2f')
-                ds.R_carbon_roots[i]        = format(ClearCut_tuple[20],'.2f')
-                ds.R_co2_stems[i]           = format(ClearCut_tuple[21],'.2f')
-                ds.R_co2_roots[i]           = format(ClearCut_tuple[22],'.2f')
+                ds.R_BGB[i]                 = float(format(ClearCut_tuple[15],'.2f'))
+                ds.R_co2[i]                 = float(format(ClearCut_tuple[16],'.2f'))
+                ds.R_biomass[i]             = float(format(ClearCut_tuple[17],'.2f'))
+                ds.R_carbon[i]              = float(format(ClearCut_tuple[18],'.2f'))
+                ds.R_carbon_stems[i]        = float(format(ClearCut_tuple[19],'.2f'))
+                ds.R_carbon_roots[i]        = float(format(ClearCut_tuple[20],'.2f'))
+                ds.R_co2_stems[i]           = float(format(ClearCut_tuple[21],'.2f'))
+                ds.R_co2_roots[i]           = float(format(ClearCut_tuple[22],'.2f'))
                 """
                 Timber products (Saw timber & pulpwood)
                 
@@ -1990,17 +1992,17 @@ class Simulator():
                     Timber_products_tuple = self.plot.fProducts(i)  
 
 
-                    ds.R_SSaw[i]  = format(Timber_products_tuple[0],'.2f')  
-                    ds.R_SPulp[i] = format(Timber_products_tuple[1],'.2f') 
-                    ds.R_PSaw[i]  = format(Timber_products_tuple[2],'.2f') 
-                    ds.R_PPulp[i] = format(Timber_products_tuple[3],'.2f') 
-                    ds.R_HSaw[i]  = format(Timber_products_tuple[4],'.2f') 
-                    ds.R_HPulp[i] = format(Timber_products_tuple[5],'.2f')
+                    ds.R_SSaw[i]  = float(format(Timber_products_tuple[0],'.2f'))  
+                    ds.R_SPulp[i] = float(format(Timber_products_tuple[1],'.2f')) 
+                    ds.R_PSaw[i]  = float(format(Timber_products_tuple[2],'.2f')) 
+                    ds.R_PPulp[i] = float(format(Timber_products_tuple[3],'.2f')) 
+                    ds.R_HSaw[i]  = float(format(Timber_products_tuple[4],'.2f')) 
+                    ds.R_HPulp[i] = float(format(Timber_products_tuple[5],'.2f'))
                     
                     
-                    # ds.Dead_wood_co2[i]      = format(self.plot.fDeadtrees()[0],'.2f')
-                    # ds.Dead_wood_biomass[i]  = format(self.plot.fDeadtrees()[1],'.2f')
-                    # ds.Dead_wood_carbon[i] = format(self.plot.fDeadtrees()[2],'.2f')
+                    # ds.Dead_wood_co2[i]      = float(format(self.plot.fDeadtrees()[0],'.2f'))
+                    # ds.Dead_wood_biomass[i]  = float(format(self.plot.fDeadtrees()[1],'.2f'))
+                    # ds.Dead_wood_carbon[i] = float(format(self.plot.fDeadtrees()[2],'.2f'))
                 
                 
                 if Clear_cut_tag  == True and ds.t[i] >= Establishment_age:
@@ -2019,27 +2021,27 @@ class Simulator():
                 Site_prep_after_harvesting = seed_tree_cut_tuple[1]
                 Next_Rotation_age   = seed_tree_cut_tuple[2]
                 ds.mgt[i]           = seed_tree_cut_tuple[3]
-                ds.Nr[i]            = format(seed_tree_cut_tuple[4],'.2f')
-                ds.Gr[i]            = format(seed_tree_cut_tuple[5],'.2f')
-                #ds.MIC_no[i]        = format(seed_tree_cut_tuple[6] , 'd') 
+                ds.Nr[i]            = float(format(seed_tree_cut_tuple[4],'.2f'))
+                ds.Gr[i]            = float(format(seed_tree_cut_tuple[5],'.2f'))
+                #ds.MIC_no[i]        = float(format(seed_tree_cut_tuple[6] , 'd') 
                 Establishment_age   = seed_tree_cut_tuple[6]
                 Product_tag_sc      = seed_tree_cut_tuple[7]
-                ds.Vr_tot[i]        = format(seed_tree_cut_tuple[8],'.2f')
-                ds.Vr_spruce[i]     = format(seed_tree_cut_tuple[9],'.2f')
-                ds.Vr_pine[i]       = format(seed_tree_cut_tuple[10],'.2f')
-                ds.Vr_birch[i]      = format(seed_tree_cut_tuple[11],'.2f')
-                ds.Vr_others[i]     = format(seed_tree_cut_tuple[12],'.2f')
-                ds.Vr_ros[i]        = format(seed_tree_cut_tuple[13],'.2f')
-                ds.Vr_warm[i]       = format(seed_tree_cut_tuple[14],'.2f')
+                ds.Vr_tot[i]        = float(format(seed_tree_cut_tuple[8],'.2f'))
+                ds.Vr_spruce[i]     = float(format(seed_tree_cut_tuple[9],'.2f'))
+                ds.Vr_pine[i]       = float(format(seed_tree_cut_tuple[10],'.2f'))
+                ds.Vr_birch[i]      = float(format(seed_tree_cut_tuple[11],'.2f'))
+                ds.Vr_others[i]     = float(format(seed_tree_cut_tuple[12],'.2f'))
+                ds.Vr_ros[i]        = float(format(seed_tree_cut_tuple[13],'.2f'))
+                ds.Vr_warm[i]       = float(format(seed_tree_cut_tuple[14],'.2f'))
                 
-                ds.R_BGB[i]         = format(seed_tree_cut_tuple[15],'.2f')
-                ds.R_co2[i]         = format(seed_tree_cut_tuple[16],'.2f')
-                ds.R_biomass[i]     = format(seed_tree_cut_tuple[17],'.2f')
-                ds.R_carbon[i]      = format(seed_tree_cut_tuple[18],'.2f')
-                ds.R_carbon_stems[i]= format(seed_tree_cut_tuple[19],'.2f')
-                ds.R_carbon_roots[i]= format(seed_tree_cut_tuple[20],'.2f')
-                ds.R_co2_stems[i]   = format(seed_tree_cut_tuple[21],'.2f')
-                ds.R_co2_roots[i]   = format(seed_tree_cut_tuple[22],'.2f')
+                ds.R_BGB[i]         = float(format(seed_tree_cut_tuple[15],'.2f'))
+                ds.R_co2[i]         = float(format(seed_tree_cut_tuple[16],'.2f'))
+                ds.R_biomass[i]     = float(format(seed_tree_cut_tuple[17],'.2f'))
+                ds.R_carbon[i]      = float(format(seed_tree_cut_tuple[18],'.2f'))
+                ds.R_carbon_stems[i]= float(format(seed_tree_cut_tuple[19],'.2f'))
+                ds.R_carbon_roots[i]= float(format(seed_tree_cut_tuple[20],'.2f'))
+                ds.R_co2_stems[i]   = float(format(seed_tree_cut_tuple[21],'.2f'))
+                ds.R_co2_roots[i]   = float(format(seed_tree_cut_tuple[22],'.2f'))
                 
                 """
                 Timber products (Saw timber & pulpwood)
@@ -2049,17 +2051,17 @@ class Simulator():
                     
                     Timber_products_tuple = self.plot.fProducts(i) 
                     
-                    ds.R_SSaw[i]  = format(Timber_products_tuple[0],'.2f')  
-                    ds.R_SPulp[i] = format(Timber_products_tuple[1],'.2f') 
-                    ds.R_PSaw[i]  = format(Timber_products_tuple[2],'.2f') 
-                    ds.R_PPulp[i] = format(Timber_products_tuple[3],'.2f') 
-                    ds.R_HSaw[i]  = format(Timber_products_tuple[4],'.2f') 
-                    ds.R_HPulp[i] = format(Timber_products_tuple[5],'.2f')
+                    ds.R_SSaw[i]  = float(format(Timber_products_tuple[0],'.2f')) 
+                    ds.R_SPulp[i] = float(format(Timber_products_tuple[1],'.2f')) 
+                    ds.R_PSaw[i]  = float(format(Timber_products_tuple[2],'.2f')) 
+                    ds.R_PPulp[i] = float(format(Timber_products_tuple[3],'.2f')) 
+                    ds.R_HSaw[i]  = float(format(Timber_products_tuple[4],'.2f')) 
+                    ds.R_HPulp[i] = float(format(Timber_products_tuple[5],'.2f'))
 
                     
-                    # ds.Dead_wood_co2[i]      = format(self.plot.fDeadtrees()[0],'.2f')
-                    # ds.Dead_wood_biomass[i]  = format(self.plot.fDeadtrees()[1],'.2f')
-                    # ds.Dead_wood_carbon[i] = format(self.plot.fDeadtrees()[2],'.2f')                 
+                    # ds.Dead_wood_co2[i]      = float(format(self.plot.fDeadtrees()[0],'.2f'))
+                    # ds.Dead_wood_biomass[i]  = float(format(self.plot.fDeadtrees()[1],'.2f'))
+                    # ds.Dead_wood_carbon[i] = float(format(self.plot.fDeadtrees()[2],'.2f'))                
                 
                 
                 
@@ -2069,15 +2071,10 @@ class Simulator():
                     seed_tree_cut_tag = RegenMethod_tuple2[1] 
 
             
-            Dead_wood_tuple       = self.plot.deadwood_decay_mass(M_spti_1, M_spti_2, M_spti_3, M_spti_4, M_spti_5, M_spti_6 )
-            M_spti_1                 = Dead_wood_tuple[0]
-            M_spti_2                 = Dead_wood_tuple[1]
-            M_spti_3                 = Dead_wood_tuple[2]
-            M_spti_4                 = Dead_wood_tuple[3]
-            M_spti_5                 = Dead_wood_tuple[4]
-            M_spti_6                 = Dead_wood_tuple[5]
-            ds.Dead_wood_co2[i]      = format(Dead_wood_tuple[6],'.2f')
-            ds.Dead_wood_carbon[i]   = format(Dead_wood_tuple[7],'.2f')
+            Dead_wood_tuple       = self.plot.deadwood_decay_mass() 
+
+            ds.Dead_wood_co2[i]      = float(format(Dead_wood_tuple[0],'.2f'))
+            ds.Dead_wood_carbon[i]   = float(format(Dead_wood_tuple[1],'.2f'))
             
 
             """
@@ -2090,7 +2087,7 @@ class Simulator():
                 ###----------------------------------------------------------------------------------------------------------------------------------------------------------------        
                 ### amount of deadwood                          |   Volume (m3/ha)   |                               > 20 m3/ha           <= 20 and >=5 m3/ha         < 5
                 ###----------------------------------------------------------------------------------------------------------------------------------------------------------------        
-                ### amount of large decidous trees other than birch  |   Volume (m3/ha)   |                          > 50 m3/ha           <= 50 and >=10 m3/ha         < 10
+                ### amount of large deciduous trees other than birch  |   Volume (m3/ha)   |                          > 50 m3/ha           <= 50 and >=10 m3/ha         < 10
                 ###----------------------------------------------------------------------------------------------------------------------------------------------------------------        
                 ### number of large trees                      |   N/ha  |                                          tree > 40cm dbh             tree > 30cm dbh       not present
                 ###----------------------------------------------------------------------------------------------------------------------------------------------------------------        
@@ -2098,56 +2095,70 @@ class Simulator():
                 ###                                and at least 25% of the basal area is decidous trees| 
             """   
             
-            Dead_wood_vol_tuple       = self.plot.deadwood_decay_vol(V_spti_1, V_spti_2, V_spti_3, V_spti_4, V_spti_5, V_spti_6)
-            V_spti_1                 = Dead_wood_vol_tuple[0]
-            V_spti_2                 = Dead_wood_vol_tuple[1]
-            V_spti_3                 = Dead_wood_vol_tuple[2]
-            V_spti_4                 = Dead_wood_vol_tuple[3]
-            V_spti_5                 = Dead_wood_vol_tuple[4]
-            V_spti_6                 = Dead_wood_vol_tuple[5]
-            Volume_deadwood          = Dead_wood_vol_tuple[6]
-            BI3                      = Dead_wood_vol_tuple[8]
+            Dead_wood_vol_tuple     = self.plot.deadwood_decay_vol(volume_deadwood_p0) 
+
+            Volume_deadwood         = float(format(Dead_wood_vol_tuple[0],'.2f'))
+            BI3                     = Dead_wood_vol_tuple[2]
+            volume_deadwood_p0      = float(format(Dead_wood_vol_tuple[3],'.2f'))
+#            ds.NoDecayDead[i]        = Dead_wood_vol_tuple[3]
+            ds.Deadwood[i]          = Volume_deadwood
+                                  
+            
+            ds.Richness[i]          = float(format(self.plot.species_richness()[0],'.2f'))
+            BI1                     = self.plot.species_richness()[1]
             
             
-            BI1 = self.plot.species_richness()
-            BI2 = self.plot.calc_alpha()
-            BI4 = self.plot.large_decidous_vol()
-            BI5 = self.plot.large_trees()
+            ds.Shannon[i]           = float(format(self.plot.calc_alpha()[0],'.2f'))
+            BI2                     = self.plot.calc_alpha()[1]
+ 
+            
+            ds.Lsize_deciduous[i]   = float(format(self.plot.large_decidous_vol()[0],'.2f'))
+            BI4                     = self.plot.large_decidous_vol()[1]
             
             
-            Biodiversity_points = [BI1, BI2 , BI3, BI4, BI5]
+            ds.Lsize_All[i]         = float(format(self.plot.large_trees()[0],'.2f'))
+            BI5                     = self.plot.large_trees()[1] 
+            
+            Biodiversity_points = [BI1 , BI2  , BI3 , BI4 , BI5]
             bio_points = np.array(Biodiversity_points, dtype=float)
             bio_point = np.mean(bio_points)
-            ds.biodiversity[i] = bio_point
+            
+            ds.biodiversity[i] = BI1 + BI2  + BI3 + BI4 + BI5
+            ds.BI1[i]  = BI1
+            ds.BI2[i]  = BI2
+            ds.BI3[i]  = BI3
+#            Simulator.GROWTH1.append((i,ds.NoDecayDead[i], ds.BI3[i]))
+            ds.BI4[i]  = BI4
+            ds.BI5[i]  = BI5
             
             
             if ds.R_carbon[i] != 0:
-                ds.Dead_wood_carbon[i]  = format(ds.Dead_wood_carbon[i] + ds.carbon_roots[i],'.2f')  
+                ds.Dead_wood_carbon[i]  = float(format(ds.Dead_wood_carbon[i] + ds.carbon_roots[i],'.2f'))  
             else:
-                ds.Dead_wood_carbon[i]  = format(ds.Dead_wood_carbon[i],'.2f')    
+                ds.Dead_wood_carbon[i]  = float(format(ds.Dead_wood_carbon[i],'.2f'))    
                 
             if ds.R_co2[i] != 0:     
-                ds.Dead_wood_co2[i]     = format(ds.Dead_wood_co2[i] + ds.co2_roots[i],'.2f')  
+                ds.Dead_wood_co2[i]     = float(format(ds.Dead_wood_co2[i] + ds.co2_roots[i],'.2f'))  
             else:
-                 ds.Dead_wood_co2[i]     =  format(ds.Dead_wood_co2[i],'.2f')    
+                 ds.Dead_wood_co2[i]     =  float(format(ds.Dead_wood_co2[i],'.2f'))    
             
-#            ds.Dead_wood_biomass[i] = format(ds.Dead_wood_biomass[i] ,'.2f')  
+#            ds.Dead_wood_biomass[i] = float(format(ds.Dead_wood_biomass[i] ,'.2f'))  
             
             if (ds.Nr[i] > 0): ds.tst[i] = 0
-            ds.Na[i] = format(ds.Nb[i] - ds.Nr[i],'.2f')             
+            ds.Na[i] = float(format(ds.Nb[i] - ds.Nr[i],'.2f'))             
             
-            ds.Ga[i] = format(ds.Gb[i] - ds.Gr[i],'.2f')  
+            ds.Ga[i] = float(format(ds.Gb[i] - ds.Gr[i],'.2f'))  
             
             if ds.Na[i] > 0:
-                ds.Gr_stock[i]        = format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[0],'.2f')   ## Growing_stock total after  
-                ds.Gr_stock_spruce[i] = format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[1],'.2f')   ## Growing_stock spruce
-                ds.Gr_stock_pine[i]   = format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[2],'.2f')   ## Growing_stock pine
-                ds.Gr_stock_birch[i]  = format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[3],'.2f')   ## Growing_stock birch
-                ds.Gr_stock_others[i] = format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[4],'.2f')   ## Growing_stock others
-                ds.Gr_stock_ros[i]    = format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[5],'.2f')   ## Growing_stock ros
-                ds.Gr_stock_warm[i]   = format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[6],'.2f')   ## Growing_stock warm
+                ds.Gr_stock[i]        = float(format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[0],'.2f'))   ## Growing_stock total after  
+                ds.Gr_stock_spruce[i] = float(format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[1],'.2f'))   ## Growing_stock spruce
+                ds.Gr_stock_pine[i]   = float(format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[2],'.2f'))  ## Growing_stock pine
+                ds.Gr_stock_birch[i]  = float(format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[3],'.2f'))   ## Growing_stock birch
+                ds.Gr_stock_others[i] = float(format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[4],'.2f'))   ## Growing_stock others
+                ds.Gr_stock_ros[i]    = float(format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[5],'.2f'))   ## Growing_stock ros
+                ds.Gr_stock_warm[i]   = float(format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[6],'.2f'))   ## Growing_stock warm
                 
-                ds.Va[i]              = format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[0],'.2f')   ## Growing_stock total after
+                ds.Va[i]              = float(format(self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[0],'.2f'))   ## Growing_stock total after
             
             if ds.Nr[i] == 0:            
                 ds.Vr_tot[i]        = 0. 
@@ -2166,33 +2177,33 @@ class Simulator():
             
             ## PAI = (volume at the end of a period- volume at the beginning of a period)/length of the period  
             ds.Vra[i] += ds.Vr_tot[i] + ds0['Vra']
-            ds.Vra[i]  = format(ds.Vra[i],'.2f') 
-            ds.PAI[i] = format((((ds.Vra[i] + ds.Gr_stock[i])-(ds0['Vra'] + ds0['Gr_stock'])) / ds0['interval']),'.2f')  
+            ds.Vra[i]  = float(format(ds.Vra[i],'.2f')) 
+            ds.PAI[i] = float(format((((ds.Vra[i] + ds.Gr_stock[i])-(ds0['Vra'] + ds0['Gr_stock'])) / ds0['interval']),'.2f'))  
             
             """
             update the stand carbon and co2 if we have clearcut or seed tree cut or thinning
             * Carbon living include carbon stems and carbon roots
             """
         
-            ds.co2_living[i]           = format(self.plot.fCO()[1],'.2f') 
-            ds.biomass_living[i]       = format(self.plot.fCO()[2],'.2f')            
-            ds.carbon_living[i]        = format(self.plot.fCO()[3],'.2f')
-            ds.carbon_stems[i]         = format(self.plot.fCO()[4],'.2f')
-            ds.carbon_roots[i]         = format(self.plot.fCO()[5],'.2f')
-            ds.co2_stems[i]            = format(self.plot.fCO()[6],'.2f')
-            ds.co2_roots[i]            = format(self.plot.fCO()[7],'.2f')
+            ds.co2_living[i]           = float(format(self.plot.fCO()[1],'.2f')) 
+            ds.biomass_living[i]       = float(format(self.plot.fCO()[2],'.2f'))            
+            ds.carbon_living[i]        = float(format(self.plot.fCO()[3],'.2f'))
+            ds.carbon_stems[i]         = float(format(self.plot.fCO()[4],'.2f'))
+            ds.carbon_roots[i]         = float(format(self.plot.fCO()[5],'.2f'))
+            ds.co2_stems[i]            = float(format(self.plot.fCO()[6],'.2f'))
+            ds.co2_roots[i]            = float(format(self.plot.fCO()[7],'.2f'))
             
             """
             soil carbon (soil, trees, roots,..)
             """
-            ds.soilC[i] = format(self.plot.fSoilCarbon(),'.2f') 
+            ds.soilC[i] = float(format(self.plot.fSoilCarbon(),'.2f')) 
             
             """
             Total carbon stock (soil, trees, roots, stumps, dead wood)
             Total carbon stock = carbon living + deadwood carbon + soil carbon
             """
             
-            ds.Total_carbon_stock[i] =  format(ds.carbon_living[i] + ds.Dead_wood_carbon[i] + ds.soilC[i],'.2f')  
+            ds.Total_carbon_stock[i] =  float(format(ds.carbon_living[i] + ds.Dead_wood_carbon[i] + ds.soilC[i],'.2f'))  
             
             ds0 = ds.loc[i]
             
@@ -2229,7 +2240,7 @@ class Simulator():
                                               'Vb','Vb_spruce' , 'Vb_pine'  ,'Vb_birch' , 'Vb_others' , 'Vb_ros' , 'Vb_warm', 'Vr_tot','Vr_spruce','Vr_pine',
                                               'Vr_birch','Vr_others','Vr_ros','Vr_warm', 'Total_carbon_stock','carbon_living','carbon_stems','carbon_roots', 
                                               'R_carbon','R_carbon_stems','R_carbon_roots','Dead_wood_carbon','R_SPulp','R_SSaw','R_PPulp', 'R_PSaw','R_HPulp','R_HSaw','soilC', 
-                                              'biodiversity']
+                                              'biodiversity', 'BI1', 'BI2', 'BI3','BI4', 'BI5','Richness','Shannon','Deadwood','Lsize_deciduous','Lsize_All']
         
         
         
@@ -2254,11 +2265,11 @@ class Simulator():
                                                 # %%%%%         Thinning           %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-    def Thinn_implementation(self,i, ds_, ds0_):
+    def Thinn_implementation(self,i, ds_, ds0_, Number_Thinn_):
         
         """
         """
-        
+        Number_Thinn = Number_Thinn_
         ds = ds_
         ds0 = ds0_
         ## we do not use the fertilization tag in thinning but for further understand for readers we decided to add it here
@@ -2323,7 +2334,7 @@ class Simulator():
         Thinn_BL_tag = False
         Product_tag_thinn  = False          
                    
-        if (ds.t[i] >= Minimum_Thinning_age) and (__SI__ >= 15.5)  and (ds.MIC_no[i] in [1,3,5,6,8,10]) and (ds.mic_type[i] in MIC_GE15_Thinn) and (ds.Gb[i] >= 35) and (ds.H0[i] >= 12) and (ds.H0[i] <= 15) :
+        if (ds.t[i] >= Minimum_Thinning_age) and (__SI__ >= 15.5)  and (ds.MIC_no[i] in [1,3,5,6,8,10]) and (ds.mic_type[i] in MIC_GE15_Thinn) and (ds.Gb[i] >= 35) and (ds.H0[i] >= 12) and (ds.H0[i] <= 15) and (Number_Thinn <= 2) :
             # it defines the thinning period
             this_period = ds.p[i] 
             if ds.mic_type[i] == "High_pine" or ds.mic_type[i] == "Medium_pine":
@@ -2372,26 +2383,27 @@ class Simulator():
                                     G_b, R_G, Removed_trees,R_vol_tot,R_vol_spruce,R_vol_pine,R_vol_birch,R_vol_others,
                                     R_vol_ros,R_vol_warm, mic_tp,  ds.Year[i], ds.p[i], "thinning")
                 Product_tag_thinn  = True
+                Number_Thinn += 1
                 
-                ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i, **ds0)),'.2f')
+                ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i, **ds0)),'.2f'))
                 
-                ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
             
             
-                ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f'))  
+                ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                 
             else:
                 if ds.mic_type[i] == "High_spruce":
@@ -2437,29 +2449,31 @@ class Simulator():
                                     G_b, R_G, Removed_trees,R_vol_tot,R_vol_spruce,R_vol_pine,R_vol_birch,R_vol_others,
                                     R_vol_ros,R_vol_warm,mic_tp , ds.Year[i], ds.p[i], "thinning")
                 Product_tag_thinn  = True
+                Number_Thinn += 1
+                
                 Thinn_age = ds.t[i]
-                ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                 
-                ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                 
-                ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f') ) 
+                ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f'))  
+                ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                 
 
                     
-        elif (ds.t[i] >= Minimum_Thinning_age) and (__SI__ < 15.5) and (__SI__ >= 10.5 ) and (ds.MIC_no[i] in [1,3,5,6,8,10]) and (ds.mic_type[i] in MIC_10_15_Thinn) and (ds.Gb[i] >= 35) and (ds.H0[i] >= 12) and (ds.H0[i] <= 15) :   
+        elif (ds.t[i] >= Minimum_Thinning_age) and (__SI__ < 15.5) and (__SI__ >= 10.5 ) and (ds.MIC_no[i] in [1,3,5,6,8,10]) and (ds.mic_type[i] in MIC_10_15_Thinn) and (ds.Gb[i] >= 35) and (ds.H0[i] >= 12) and (ds.H0[i] <= 15) and (Number_Thinn <= 2) :   
             this_period = ds.p[i] 
             if ds.mic_type[i] == "High_pine":
                 Thinn_HP_tag = True
@@ -2511,24 +2525,26 @@ class Simulator():
                                 G_b, R_G, Removed_trees,R_vol_tot,R_vol_spruce,R_vol_pine,R_vol_birch,R_vol_others,
                                 R_vol_ros,R_vol_warm, mic_tp ,ds.Year[i], ds.p[i], "thinning")
             Product_tag_thinn  = True
-            ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+            Number_Thinn += 1
             
-            ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-            ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-            ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-            ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-            ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-            ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-            ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+            ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
             
-            ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-            ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-            ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-            ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-            ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-            ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-            ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-            ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+            ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+            ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+            ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+            ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+            ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+            ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+            ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
+            
+            ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+            ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+            ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+            ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+            ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+            ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+            ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+            ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
 
 
             Thinn_age = ds.t[i]
@@ -2552,7 +2568,9 @@ class Simulator():
             ds.R_co2_stems[i]      = 0.
             ds.R_co2_roots[i]      = 0.
             
-        return Thinn_MS_tag,Thinn_MP_tag,Thinn_HS_tag,Thinn_HP_tag,Thinn_LS_tag, Thinn_BL_tag, Thinn_age, ds.mgt[i], ds.Nr[i], ds.Gr[i], Product_tag_thinn, ds.Vr_tot[i], ds.Vr_spruce[i], ds.Vr_pine[i], ds.Vr_birch[i], ds.Vr_others[i], ds.Vr_ros[i], ds.Vr_warm[i], ds.R_BGB[i], ds.R_co2[i], ds.R_biomass[i], ds.R_carbon[i] , ds.R_carbon_stems[i],ds.R_carbon_roots[i],ds.R_co2_stems[i] , ds.R_co2_roots[i]
+        return Thinn_MS_tag,Thinn_MP_tag,Thinn_HS_tag,Thinn_HP_tag,Thinn_LS_tag, Thinn_BL_tag, Thinn_age, ds.mgt[i], ds.Nr[i], ds.Gr[i], \
+        Product_tag_thinn, ds.Vr_tot[i], ds.Vr_spruce[i], ds.Vr_pine[i], ds.Vr_birch[i], ds.Vr_others[i], ds.Vr_ros[i], ds.Vr_warm[i], ds.R_BGB[i], \
+        ds.R_co2[i], ds.R_biomass[i], ds.R_carbon[i] , ds.R_carbon_stems[i],ds.R_carbon_roots[i],ds.R_co2_stems[i] , ds.R_co2_roots[i], Number_Thinn
 
 
  # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%          Fertilization           %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -2754,24 +2772,24 @@ class Simulator():
                             
                         # these lines should be run whether the if statement is satisfied or not
                         """ Since we have planting after the clear cut and seed tree cut, the difference can be negative. To avoid we use abs()   """
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i, after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f'))
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     # if we do thinning then clear cut cannot be set before 10 years after thinning - check management alternative to find out which MIC_type need clear cut and thinning    
                     elif (ds.mic_type[i] == "Medium_spruce")  and (ds.MIC_no[i] == 9) and (Thinn_MS_tag == False) and (fertilization == False):
             
@@ -2816,24 +2834,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                         
                     elif (ds.mic_type[i] == "Medium_spruce")  and (ds.MIC_no[i] == 10) and (Thinn_MS_tag == True) and (fertilization == False) and (ds.t[i] >= Thinn_age + 10) :
             
@@ -2879,24 +2897,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))  
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     
                     elif (ds.mic_type[i] == "High_spruce")  and (ds.MIC_no[i] == 8) and (Thinn_HS_tag == True) and (fertilization == True) and (ds.t[i] >= Thinn_age + 10):
             
@@ -2941,24 +2959,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f'))  
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                         
                     elif (ds.mic_type[i] == "High_spruce")  and (ds.MIC_no[i] == 7) and (Thinn_HS_tag == False) and (fertilization == False):
             
@@ -3002,24 +3020,24 @@ class Simulator():
                         
                         Product_tag_cc  = True
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))  
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f') ) 
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                         
                     elif (ds.mic_type[i] == "High_spruce")  and (ds.MIC_no[i] == 6) and (Thinn_HS_tag == True) and (fertilization == False) and (ds.t[i] >= Thinn_age + 10):
             
@@ -3063,24 +3081,24 @@ class Simulator():
                         
                         Product_tag_cc  = True
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f'))  
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     
                     elif (ds.mic_type[i] == "Low_spruce")  and (ds.MIC_no[i] == 11) and (Thinn_LS_tag == False) and (fertilization == False):  
             
@@ -3124,24 +3142,24 @@ class Simulator():
                         
                         Product_tag_cc  = True
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] - self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f'))  
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] - self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     
                     # No management (ds.mic_type[i] == "No_man") and (Thinn_LS_tag == False) and (fertilization == False)
                     elif (ds.mic_type[i] == "broadleaf")  and (ds.MIC_no[i] == 12) and (Thinn_BL_tag == False) and (fertilization == False):   
@@ -3187,24 +3205,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f') 
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')) 
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f'))  
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                             
                                             
                 elif (ds.t[i] >= harvest_age_variable) and (__SI__ < 15.5) and (__SI__ >= 10.5 ) and (ds.MIC_no[i] in [1,6,7,8,9,10,11,12]) and (ds.mic_type[i] in MIC_10_15_CC): 
@@ -3253,24 +3271,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f'))  
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                             
                     elif (ds.mic_type[i] == "Medium_spruce") and (ds.MIC_no[i] == 9) and (Thinn_MS_tag == False) and (fertilization == False):
             
@@ -3315,24 +3333,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f'))  
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                             
                     elif (ds.mic_type[i] == "Medium_spruce") and (ds.MIC_no[i] == 10) and (Thinn_MS_tag == True) and (fertilization == False) and (ds.t[i] >= Thinn_age + 10):
             
@@ -3377,24 +3395,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                             
                     elif (ds.mic_type[i] == "High_spruce") and (ds.MIC_no[i] == 8) and (Thinn_HS_tag == True) and (fertilization == True) and (ds.t[i] >= Thinn_age + 10):
             
@@ -3439,24 +3457,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                             
                     elif (ds.mic_type[i] == "High_spruce") and (ds.MIC_no[i] == 7) and (Thinn_HS_tag == False) and (fertilization == False):
             
@@ -3501,24 +3519,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6] ),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7] ),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6] ),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7] ),'.2f'))
                         
                     elif (ds.mic_type[i] == "High_spruce") and (ds.MIC_no[i] == 6) and (Thinn_HS_tag == True) and (fertilization == False)  and (ds.t[i] >= Thinn_age + 10):
             
@@ -3563,24 +3581,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                             
                     elif (ds.mic_type[i] == "Low_spruce") and (ds.MIC_no[i] == 11) and (Thinn_LS_tag == False) and (fertilization == False): 
             
@@ -3625,24 +3643,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     
                     elif (ds.mic_type[i] == "broadleaf")  and (ds.MIC_no[i] == 12) and (Thinn_BL_tag == False) and (fertilization == False):   
 
@@ -3687,24 +3705,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
             
                     
                 elif (ds.t[i] >= harvest_age_variable) and (__SI__ < 10.5 ) and (ds.MIC_no[i] in [1,4,5,6,7,8]) and (ds.mic_type[i] in MIC_L10_CC): 
@@ -3752,24 +3770,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                         
                     elif (ds.mic_type[i] == "Medium_spruce") and (ds.MIC_no[i] == 6) and (Thinn_MS_tag == False) and (fertilization == False):
             
@@ -3814,24 +3832,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                         
                     elif (ds.mic_type[i] == "High_spruce") and (ds.MIC_no[i] == 4) and (Thinn_HS_tag == False) and (fertilization == False):
             
@@ -3876,24 +3894,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))  
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     # This scenario is identical to previeos one    
                     # elif (ds.mic_type[i] == "High_spruce") and (Thinn_HS_tag == False) and (fertilization == False):
                     #     ds.MIC_no[i] = 5  
@@ -3954,24 +3972,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f'))  
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                         
                     
                     elif (ds.mic_type[i] == "broadleaf") and (ds.MIC_no[i] == 8) and (Thinn_BL_tag == False) and (fertilization == False):
@@ -4017,24 +4035,24 @@ class Simulator():
                         Product_tag_cc  = True
                         
                         
-                        ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f') 
+                        ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')) 
                         
-                        ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                        ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                        ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                        ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                        ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                        ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                        ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                        ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                        ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                        ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                        ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                        ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                        ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                        ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                         
-                        ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                        ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                        ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                        ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                        ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] - self.plot.fCO(**ds0)[4]),'.2f')
-                        ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                        ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                        ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                        ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                        ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                        ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))     
+                        ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f'))  
+                        ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] - self.plot.fCO(**ds0)[4]),'.2f'))
+                        ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                        ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                        ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     
                 
         return Clear_cut_tag, Site_prep_after_harvesting, Next_Rotation_age, ds.mgt[i], ds.Nr[i], ds.Gr[i], Establishment_age, Product_tag_cc, ds.Vr_tot[i], ds.Vr_spruce[i], ds.Vr_pine[i], ds.Vr_birch[i], ds.Vr_others[i], ds.Vr_ros[i], ds.Vr_warm[i], ds.R_BGB[i], ds.R_co2[i], ds.R_biomass[i], ds.R_carbon[i] , ds.R_carbon_stems[i],ds.R_carbon_roots[i],ds.R_co2_stems[i] , ds.R_co2_roots[i]
@@ -4114,24 +4132,24 @@ class Simulator():
                     
                     Product_tag_sc  = True
                     
-                    ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f') 
+                    ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')) 
                     
-                    ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                    ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                    ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                    ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                    ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                    ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                    ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                    ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                    ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                    ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                    ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                    ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                    ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                    ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                     
-                    ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                    ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                    ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                    ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                    ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] - self.plot.fCO(**ds0)[4]),'.2f')
-                    ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                    ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                    ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                    ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                    ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                    ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                    ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                    ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] - self.plot.fCO(**ds0)[4]),'.2f'))
+                    ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                    ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                    ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     
                 elif (ds.mic_type[i] == "High_pine") and (ds.MIC_no[i] == 3) and (Thinn_HP_tag == True) and (fertilization == False) and (ds.t[i] >= Thinn_age + 10):
                     #ds.MIC_no[i] = 3
@@ -4175,24 +4193,24 @@ class Simulator():
                     
                     Product_tag_sc  = True
                     
-                    ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f') 
+                    ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')) 
                     
-                    ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                    ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                    ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                    ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                    ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                    ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                    ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                    ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                    ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                    ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                    ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                    ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                    ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                    ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                     
-                    ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                    ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                    ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                    ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                    ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                    ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                    ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                    ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                    ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                    ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                    ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                    ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                    ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                    ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                    ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                    ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     
                 elif (ds.mic_type[i] == "Medium_pine") and (ds.MIC_no[i] == 4) and (Thinn_MP_tag == False) and (fertilization == False):
                     #ds.MIC_no[i] = 4 
@@ -4236,24 +4254,24 @@ class Simulator():
                     
                     Product_tag_sc  = True
                     
-                    ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f') 
+                    ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')) 
                     
-                    ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                    ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                    ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                    ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                    ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                    ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                    ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                    ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))  
+                    ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                    ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                    ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                    ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                    ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                    ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                     
-                    ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                    ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                    ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                    ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                    ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] - self.plot.fCO(**ds0)[4]),'.2f')
-                    ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                    ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                    ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                    ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                    ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                    ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                    ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                    ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] - self.plot.fCO(**ds0)[4]),'.2f'))
+                    ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                    ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                    ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     
                 elif (ds.mic_type[i] == "Medium_pine") and (ds.MIC_no[i] == 5) and (Thinn_MP_tag == True) and (fertilization == False) and (ds.t[i] >= Thinn_age + 10):
                     #ds.MIC_no[i] = 5 
@@ -4297,24 +4315,24 @@ class Simulator():
                     
                     Product_tag_sc  = True
                     
-                    ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f') 
+                    ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')) 
                     
-                    ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                    ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                    ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                    ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                    ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                    ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                    ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                    ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                    ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                    ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                    ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                    ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                    ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                    ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                     
-                    ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                    ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                    ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                    ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                    ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                    ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                    ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                    ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                    ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                    ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                    ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                    ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f'))  
+                    ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                    ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                    ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                    ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     
                                         
             elif (ds.t[i] >= harvest_age_variable) and (__SI__ < 15.5) and (__SI__ >= 10.5 ) and (ds.MIC_no[i] in [2,3,4,5]) and (ds.mic_type[i] in MIC_10_15_SC): 
@@ -4362,24 +4380,24 @@ class Simulator():
                     
                     Product_tag_sc  = True
                     
-                    ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f') 
+                    ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')) 
                     
-                    ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                    ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                    ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                    ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                    ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                    ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                    ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                    ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                    ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                    ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                    ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                    ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                    ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                    ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                     
-                    ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                    ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                    ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                    ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                    ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                    ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                    ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                    ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                    ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                    ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                    ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                    ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f'))  
+                    ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                    ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                    ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                    ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     
                 elif (ds.mic_type[i] == "High_pine") and (ds.MIC_no[i] == 3) and (Thinn_HP_tag == True) and (fertilization == False) and (ds.t[i] >= Thinn_age + 10):
                     #ds.MIC_no[i] = 3
@@ -4423,24 +4441,24 @@ class Simulator():
                     
                     Product_tag_sc  = True
                     
-                    ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f') 
+                    ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f'))
                     
-                    ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                    ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                    ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                    ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                    ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                    ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                    ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                    ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                    ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                    ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                    ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                    ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                    ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                    ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                     
-                    ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                    ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                    ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                    ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                    ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                    ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                    ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                    ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                    ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                    ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                    ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                    ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                    ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                    ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                    ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                    ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     
                 elif (ds.mic_type[i] == "Medium_pine") and (ds.MIC_no[i] == 4) and (Thinn_MP_tag == False) and (fertilization == False):
                     #ds.MIC_no[i] = 4 
@@ -4484,24 +4502,24 @@ class Simulator():
                     
                     Product_tag_sc  = True
                     
-                    ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f') 
+                    ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')) 
                     
-                    ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                    ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                    ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                    ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                    ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                    ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                    ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                    ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                    ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                    ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                    ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                    ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                    ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                    ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                     
-                    ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                    ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                    ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                    ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                    ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                    ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                    ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                    ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                    ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                    ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))  
+                    ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                    ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                    ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                    ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                    ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                    ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     
                 elif (ds.mic_type[i] == "Medium_pine") and (ds.MIC_no[i] == 5) and (Thinn_MP_tag == True) and (fertilization == False) and (ds.t[i] >= Thinn_age + 10):
                     #ds.MIC_no[i] = 5 
@@ -4545,24 +4563,24 @@ class Simulator():
                     
                     Product_tag_sc  = True
                     
-                    ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f') 
+                    ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')) 
                     
-                    ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                    ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                    ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                    ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                    ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                    ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                    ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                    ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                    ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                    ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                    ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                    ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                    ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                    ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                     
-                    ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                    ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                    ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                    ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                    ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                    ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                    ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                    ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                    ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                    ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                    ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                    ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                    ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                    ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                    ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                    ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
 
                 
             elif (ds.t[i] >= harvest_age_variable) and (__SI__ < 10.5 ) and (ds.MIC_no[i] in [2,3]) and (ds.mic_type[i] in dfL_10_SC): 
@@ -4609,24 +4627,24 @@ class Simulator():
                     
                     Product_tag_sc  = True
                     
-                    ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f') 
+                    ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')) 
                     
-                    ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                    ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                    ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                    ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                    ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                    ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                    ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                    ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))   
+                    ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                    ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                    ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                    ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                    ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                    ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                     
-                    ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                    ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                    ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                    ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                    ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                    ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                    ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                    ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                    ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                    ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f'))
+                    ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                    ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                    ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                    ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                    ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                    ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                     
                 elif (ds.mic_type[i] == "Medium_pine") and (ds.MIC_no[i] == 3) and (Thinn_MP_tag == False) and (fertilization == False):
                     #ds.MIC_no[i] = 3 
@@ -4670,24 +4688,24 @@ class Simulator():
                     
                     Product_tag_sc  = True
                     
-                    ds.Gr[i] = format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f') 
+                    ds.Gr[i] = float(format((ds.Gb[i] - self.plot.fGp(i,**ds0)),'.2f')) 
                     
-                    ds.Vr_tot[i]    = format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f')   
-                    ds.Vr_spruce[i] = format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f')
-                    ds.Vr_pine[i]   = format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f')
-                    ds.Vr_birch[i]  = format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f')
-                    ds.Vr_others[i] = format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f')
-                    ds.Vr_ros[i]    = format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f')
-                    ds.Vr_warm[i]   = format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f')
+                    ds.Vr_tot[i]    = float(format((ds.Vb[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[0]),'.2f'))  
+                    ds.Vr_spruce[i] = float(format((ds.Vb_spruce[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[1]),'.2f'))
+                    ds.Vr_pine[i]   = float(format((ds.Vb_pine[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[2]),'.2f'))
+                    ds.Vr_birch[i]  = float(format((ds.Vb_birch[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[3]),'.2f'))
+                    ds.Vr_others[i] = float(format((ds.Vb_others[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[4]),'.2f'))
+                    ds.Vr_ros[i]    = float(format((ds.Vb_ros[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[5]),'.2f'))
+                    ds.Vr_warm[i]   = float(format((ds.Vb_warm[i] - self.plot.fV(i,after=ds.Nr[i] > 0., **ds.loc[i])[6]),'.2f'))
                     
-                    ds.R_BGB[i]          = format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f')
-                    ds.R_co2[i]          = format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')  
-                    ds.R_biomass[i]      = format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f')     
-                    ds.R_carbon[i]       = format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')  
-                    ds.R_carbon_stems[i] = format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f')
-                    ds.R_carbon_roots[i] = format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f')
-                    ds.R_co2_stems[i]    = format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f')
-                    ds.R_co2_roots[i]    = format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f')
+                    ds.R_BGB[i]          = float(format((ds.Initial_BGB_living[i] - self.plot.fCO(**ds0)[0]),'.2f'))
+                    ds.R_co2[i]          = float(format((ds.Initial_co2_living[i] - self.plot.fCO(**ds0)[1]),'.2f')) 
+                    ds.R_biomass[i]      = float(format((ds.Initial_biomass_living[i] - self.plot.fCO(**ds0)[2]),'.2f'))    
+                    ds.R_carbon[i]       = float(format((ds.Initial_carbon_living[i] - self.plot.fCO(**ds0)[3]) ,'.2f')) 
+                    ds.R_carbon_stems[i] = float(format((ds.Initial_carbon_stems_living[i] -self.plot.fCO(**ds0)[4]),'.2f'))
+                    ds.R_carbon_roots[i] = float(format((ds.Initial_carbon_roots_living[i] - self.plot.fCO(**ds0)[5]),'.2f'))
+                    ds.R_co2_stems[i]    = float(format((ds.Initial_co2_stems_living[i]  - self.plot.fCO(**ds0)[6]),'.2f'))
+                    ds.R_co2_roots[i]    = float(format((ds.Initial_co2_roots_living[i] - self.plot.fCO(**ds0)[7]),'.2f'))
                 
                 
         return seed_tree_cut_tag, Site_prep_after_harvesting, Next_Rotation_age, ds.mgt[i], ds.Nr[i], ds.Gr[i] , Establishment_age, Product_tag_sc, ds.Vr_tot[i], ds.Vr_spruce[i], ds.Vr_pine[i], ds.Vr_birch[i], ds.Vr_others[i], ds.Vr_ros[i], ds.Vr_warm[i], ds.R_BGB[i], ds.R_co2[i], ds.R_biomass[i], ds.R_carbon[i] , ds.R_carbon_stems[i],ds.R_carbon_roots[i],ds.R_co2_stems[i] , ds.R_co2_roots[i]

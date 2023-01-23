@@ -29,7 +29,7 @@ step = 40                                                                       
                                                 # %%%% import modules for individual tree   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##
 import titles_tree
 #from simulation import Data, tree, plot
-from math import log, sqrt, exp,pi, gamma, ceil
+from math import log, sqrt, pi,exp, gamma, ceil
 import numpy as np
 from heapq import nlargest
 from operator import itemgetter
@@ -46,12 +46,13 @@ import random
 import yasso
 import requests
 import pandas as pd
-import pdb
+#import pdb
 
 YassoModel = yasso.yasso()
 
 #******************************* for x and y of tree location
 np.random.seed(1)
+#np.set_printoptions(precision=2)
                                                 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 class GrowthModel():
     """ Represents individual trees.
@@ -150,9 +151,9 @@ class GrowthModel():
             self.ba = new_parameters['ba']
             self.management = new_parameters['management']
                 
-        new_attr_met = {'DeadList':{'Period': new_parameters['Period'], 'Num_DeadTrees': new_parameters['Num_DeadTrees'],'dead_volume': new_parameters['dead_volume'],
+        new_attr_met = {'DeadList':{'yr_since_dead': new_parameters['yr_since_dead'], 'Num_DeadTrees': new_parameters['Num_DeadTrees'],'dead_volume': new_parameters['dead_volume'],
                                     'dead_co2': new_parameters['dead_co2'], 'dead_biomass': new_parameters['dead_biomass'],
-                                    'dead_C': new_parameters['dead_C']},
+                                    'dead_C': new_parameters['dead_C'], 'dbh': new_parameters['dbh']},
                         'plot_id'        : new_parameters['plot_id'],
                         'tree_id'        : new_parameters['tree_id'],
                         'tree_sp'        : new_parameters['tree_sp'],
@@ -169,6 +170,7 @@ class GrowthModel():
                         't_age'          : new_parameters['t_age'],
                         'year'           : new_parameters['year'],
                         'Period'         : new_parameters['Period'], 
+                        'yr_since_dead'  : new_parameters['yr_since_dead'], 
                         'Num_DeadTrees'  : new_parameters['Num_DeadTrees'],
                         'Dom_species'    : new_parameters['Dom_species'],   
                         'BGB'            : new_parameters['BGB'],
@@ -183,7 +185,7 @@ class GrowthModel():
                         'dead_volume'    : new_parameters['dead_volume'],                             
                         'dead_co2'       : new_parameters['dead_co2'],
                         'dead_biomass'   : new_parameters['dead_biomass'],
-                        'dead_C'        : new_parameters['dead_C'],
+                        'dead_C'         : new_parameters['dead_C'],
                         'R_SPulp'        : new_parameters['R_SPulp'],
                         'R_PPulp'        : new_parameters['R_PPulp'],
                         'R_HPulp'        : new_parameters['R_HPulp'],
@@ -224,7 +226,8 @@ class GrowthModel():
         
         """Record the Dead trees in the DeadTrees dict"""
         cls.DeadTrees[new_cls_name][cls.DERIVED_TREES[new_cls_name].Period] = new_attr_met['Num_DeadTrees']
-        #        GrowthModel.GROWTH.append((cls.DeadTrees[new_cls_name]))
+        
+#        GrowthModel.GROWTH.append((cls.DeadTrees))
         #       base.GrowthModel.DeadTrees['110191'][1][0]
         GrowthModel.TITLES[new_cls_name][new_attr_met['Period']] = (titles_tree.TreeObject(cls.DERIVED_TREES[new_cls_name].plot_id, cls.DERIVED_TREES[new_cls_name].tree_id, cls.DERIVED_TREES[new_cls_name].tree_sp, cls.DERIVED_TREES[new_cls_name].dbh, 
                                           cls.DERIVED_TREES[new_cls_name].height, cls.DERIVED_TREES[new_cls_name].diameter_class, cls.DERIVED_TREES[new_cls_name].tree_Factor, cls.DERIVED_TREES[new_cls_name].SI_spp,
@@ -243,7 +246,7 @@ class GrowthModel():
             Returns: None
         """
 
-        trees = [k for k in cls.DERIVED_TREES.keys() if cls.DERIVED_TREES[k].n_tree != 0]
+        trees = [k for k in cls.DERIVED_TREES.keys()] #if cls.DERIVED_TREES[k].n_tree != 0
         
         for t in trees:
             treeObj = cls.DERIVED_TREES[t]
@@ -364,7 +367,7 @@ class GrowthModel():
         """Calculate the plot total number of dead trees 
 
         Returns: float
-            Number of trees in plot.
+            Number of dead trees in plot.
         """ 
         n_dead = len([k for k in self.DERIVED_TREES.keys() if self.DERIVED_TREES[k].n_tree == 0])
         
@@ -426,6 +429,7 @@ class GrowthModel():
                                                                                             t_age          = self.trObject.trees[k].t_age,
                                                                                             year           = self.trObject.trees[k].year,
                                                                                             Period         = 0,  
+                                                                                            yr_since_dead  = 0,
                                                                                             Num_DeadTrees  = self.trObject.trees[k].num_DeadTrees,
                                                                                             Dom_species    = 0,
                                                                                             Total_carbon   = self.trObject.trees[k].Total_carbon,
@@ -570,35 +574,23 @@ class GrowthModel():
         else:
             Period = self.DERIVED_TREES[s].Period + 0
             
+        
+        yr_since_dead = self.DERIVED_TREES[s].yr_since_dead + 0    
         DBH = self.NEW_DBH(self.DERIVED_TREES[s], s)
         HEIGHT = self.NEW_HEIGHT(self.DERIVED_TREES[s], s)
         
-#        TVolume = GrowthModel.update_volume(self.DERIVED_TREES[s],DBH, HEIGHT, s, aboveBark= True)
         species = GrowthModel.DERIVED_TREES[s].species
-        
-        # these 5 lines are used for visualization    
-        # self.Treeheight.append((Age, HEIGHT))
-#        self.volume.append((Age, TVolume))
-        # self.Tree_height[Period][s] = HEIGHT
-        # self.Tree_dbh[Period][s] = DBH
-#        self.Tree_volume[self.Period][s] = TVolume
+
         for dom_spp in self.Dominant_Height()[1]:
             self.Dom_species = dom_spp
-        # self.Tree_height[s] = HEIGHT
-        # self.Tree_dbh[s] = DBH
-        # self.Tree_volume[s] = TVolume  
-        
-        ## co2/biomass calculation
-        #self.update_biomass(self.DERIVED_TREES[s],DBH, HEIGHT, species, s)
+
         LitterProduction_tuple = self.fLitter_Production(self.DERIVED_TREES[s],s)
         unwl  = LitterProduction_tuple[0]
         ufwl  = LitterProduction_tuple[1]
         ucwl  = LitterProduction_tuple[2]
-
+        
         if mortality:
-            
-            SI = self.DERIVED_TREES[s].SI_m
-            
+             
             mort = self.Mortality_Bollandsas(self.DERIVED_TREES[s],s)
             ## this makes sure the mortality will be held between 0 and 1
             mort_rate = min(1, mort)
@@ -606,44 +598,51 @@ class GrowthModel():
             survival = self.survival_Bollandsas(self.DERIVED_TREES[s],s)
             
             ba = GrowthModel.update_ba(GrowthModel.DERIVED_TREES[s], DBH)
-            #  survival2 = self.survival_Eid_Tuhus(self.DERIVED_TREES[s],s)
             
-            # if (Altitude_Perc < 0.13) and self.DERIVED_TREES[s].species == "spruce" :
-            #     survival = self.MortExtra(SI,Altitude_Perc,survival)
-                
             
-            # if (Altitude_Perc < 0.13) and (survival2 > 0.9): #and self.DERIVED_TREES[s].species == "spruce":
-            #     survival2 = self.MortExtra2(SI,Altitude_Perc,survival2)
-
-            # survival = (survival + survival2)/2
-#            print((survival1,survival2,survival ))
+            Age = self.DERIVED_TREES[s].t_age + interval
+            year = self.DERIVED_TREES[s].year + interval
+            
 
             if survival == 1:        
-                n_tree = self.DERIVED_TREES[s].n_tree
-                num_DeadTrees = 0
+                n_tree = self.DERIVED_TREES[s].tree_Factor
+                Num_DeadTrees = 0
             
             elif survival == 0:
                 n_tree = 0
-                num_DeadTrees = self.DERIVED_TREES[s].n_tree
+                Num_DeadTrees = self.DERIVED_TREES[s].tree_Factor
                 ba = 0
+                Period = self.DERIVED_TREES[s].Period + 0
+                DBH = self.DERIVED_TREES[s].dbh + 0
+                HEIGHT = self.DERIVED_TREES[s].height + 0
+                Age = self.DERIVED_TREES[s].t_age + 0
+                year = self.DERIVED_TREES[s].year + 0
+                yr_since_dead = self.DERIVED_TREES[s].yr_since_dead + 1
             
             else:
                 n_tree = self.DERIVED_TREES[s].n_tree * max(survival, 0)
                 ## this makes sure the mortality rate cannot be less than zero
-                num_DeadTrees = self.DERIVED_TREES[s].n_tree * max(mort_rate, 0)
+                Num_DeadTrees = self.DERIVED_TREES[s].n_tree * max(mort_rate, 0)
+                
             """
-            When the number of trees goes below 
+            When the number of trees goes below 1/2  
             """
             Is_tree_dead = n_tree/self.DERIVED_TREES[s].tree_Factor
             X = 1/(2*self.DERIVED_TREES[s].tree_Factor)
             
-            if self.DERIVED_TREES[s].tree_Factor != 1:
-                if Is_tree_dead < X:
-                    n_tree = 0
-                    num_DeadTrees = self.DERIVED_TREES[s].n_tree
-                
-                
-            dead_volume_tuple = self.tree_volume_function(self.DERIVED_TREES[s], DBH,HEIGHT,num_DeadTrees, species, aboveBark= True)
+            if Is_tree_dead < X:
+                n_tree = 0
+                ba = 0
+                Num_DeadTrees = self.DERIVED_TREES[s].tree_Factor
+                Period = self.DERIVED_TREES[s].Period + 0
+                yr_since_dead = self.DERIVED_TREES[s].yr_since_dead + 1
+                DBH = self.DERIVED_TREES[s].dbh + 0
+                HEIGHT = self.DERIVED_TREES[s].height + 0
+                Age = self.DERIVED_TREES[s].t_age + 0
+                year = self.DERIVED_TREES[s].year + 0
+#                GrowthModel.GROWTH.append((s, Num_DeadTrees))
+                        
+            dead_volume_tuple = self.tree_volume_dead(self.DERIVED_TREES[s], DBH,HEIGHT, Num_DeadTrees, species, aboveBark= True)
 #            volsum = dead_volume_tuple[0]
             if species == "spruce":
                 dead_volume = dead_volume_tuple[1] 
@@ -657,8 +656,8 @@ class GrowthModel():
                 dead_volume = dead_volume_tuple[5]
             elif species == "warm":
                 dead_volume = dead_volume_tuple[6]
-                
-                
+            
+            
             VOLUME = self.tree_volume_function(self.DERIVED_TREES[s], DBH,HEIGHT,n_tree, species, aboveBark= True)
             volsum = VOLUME[0]
             vol_spruce = VOLUME[1]
@@ -691,7 +690,7 @@ class GrowthModel():
                 
         else:
             n_tree = self.DERIVED_TREES[s].n_tree
-            num_DeadTrees        = 0
+            Num_DeadTrees        = 0
             dead_volume          = 0
             BGB                  =  update_dead_C_biomass_co2_tuple[0]
             Tot_co2              =  update_dead_C_biomass_co2_tuple[1]
@@ -699,7 +698,7 @@ class GrowthModel():
             Total_carbon         =  update_dead_C_biomass_co2_tuple[3]
             dead_co2             = 0
             dead_biomass         = 0
-            dead_C              = 0
+            dead_C               = 0
             Biomass_BAR          =  update_dead_C_biomass_co2_tuple[7]
             Biomass_LGR          =  update_dead_C_biomass_co2_tuple[8]
             Biomass_RGE5         =  update_dead_C_biomass_co2_tuple[9]
@@ -724,14 +723,8 @@ class GrowthModel():
         
         
             
-        Age = self.DERIVED_TREES[s].t_age + interval
-        year = self.DERIVED_TREES[s].year + interval
-        
-        # if self.DERIVED_TREES[s].Period < P:
-        #     Period = self.DERIVED_TREES[s].Period + 1
-        # #elif self.DERIVED_TREES[s].Period == P:
-        # else:
-        #     Period = self.DERIVED_TREES[s].Period + 0
+            Age = self.DERIVED_TREES[s].t_age + interval
+            year = self.DERIVED_TREES[s].year + interval
 
 
         Diameter_Class= self.NEW_Diameter_Class(self.DERIVED_TREES[s], s)
@@ -741,11 +734,10 @@ class GrowthModel():
         management = "none"
         
 #        GrowthModel.GROWTH.append((self.DERIVED_TREES[s].DeadList['dead_biomass'],self.DERIVED_TREES[s].DeadList['Period']))                                                                                          
-#        self.add_newTree(self.DERIVED_TREES[s],s, ingrowthN)                    
-#        def add_newTree(self,s,ingrowthN):            
+#        GrowthModel.GROWTH.append((s,Period, yr_since_dead))
         attributes = dict(plot_id = self.DERIVED_TREES[s].plot_id,tree_id = self.DERIVED_TREES[s].tree_id,tree_sp = self.DERIVED_TREES[s].tree_sp, dbh = DBH , height = HEIGHT , diameter_class = Diameter_Class,
                           tree_Factor = self.DERIVED_TREES[s].tree_Factor, n_tree = n_tree, year = year, SI_spp = self.DERIVED_TREES[s].SI_spp, altitude_m = self.DERIVED_TREES[s].altitude_m, 
-                          SI_m = self.DERIVED_TREES[s].SI_m, LAT = self.DERIVED_TREES[s].LAT,species = species, t_age = Age, Period = Period, Num_DeadTrees = num_DeadTrees, 
+                          SI_m = self.DERIVED_TREES[s].SI_m, LAT = self.DERIVED_TREES[s].LAT,species = species, t_age = Age, Period = Period, yr_since_dead = yr_since_dead, Num_DeadTrees = Num_DeadTrees, 
                           Dom_species = self.Dom_species, BGB = BGB, Tot_co2 = Tot_co2, Total_carbon = Total_carbon, Tot_carbon_stems = Tot_carbon_stems, Tot_carbon_roots = Tot_carbon_roots, 
                           Tot_co2_roots = Tot_co2_roots,  Tot_co2_stems = Tot_co2_stems, Tot_biomass = Tot_biomass, vol_increment = self.DERIVED_TREES[s].vol_increment, dead_volume = dead_volume, dead_co2 = dead_co2, 
                           dead_biomass= dead_biomass, dead_C = dead_C, R_SPulp = self.DERIVED_TREES[s].R_SPulp, R_PPulp = self.DERIVED_TREES[s].R_PPulp, R_HPulp = self.DERIVED_TREES[s].R_HPulp,
@@ -873,6 +865,121 @@ class GrowthModel():
             
             return volsum, vol_spruce, vol_pine, vol_birch , vol_others, vol_ROS , vol_warm
 
+                                                # %%%%%     Calculate tree volume  for dead trees     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%           
+        
+        
+    def tree_volume_dead(self, dbh,height, n_tree, species, aboveBark= True, **kwargs):
+        """
+        Calculate stem volume of single trees using Norwegian single tree volume functions for Norway Spruce, pine, Birch and other broadleaved trees
+    
+        Parameters
+        ----------
+        s : tree_id (string)
+            Each tree object has a key and the values are the attributes of that tree. 
+        aboveBark : TRUE or FALSE, optional
+            To calculate volume inside Bark [m³/ha]. The default is TRUE.
+        **kwargs : TYPE
+            dbh : Diameter in breast height in centimeter(cm)including bark
+            height: Tree height in meter(m)
+    
+        Returns
+        -------
+        Volume for each tree in liters then changed to (m3/ha)
+    
+        """
+        volsum = 0
+        vol_spruce = 0
+        vol_pine = 0
+        vol_birch = 0
+        vol_others = 0
+        vol_ROS = 0
+        vol_warm = 0
+        
+        dbh = dbh/ 10 # centimeter
+        height = height/ 10 # meter
+        n_tree = n_tree
+        sp = species
+        
+        if sp == "spruce":
+            
+            if aboveBark:
+                a0, a1, a2, a3, a4, b0, b1, b2, b3, b4, b5, c0, c1, c2, c3, c4 = 0.52, 0.02403, 0.01463, -0.10983, 0.15195, -31.57, 0.0016, 0.0186, 0.63, -2.34, 3.2, 10.14, 0.0124, 0.03117, -0.36381, 0.28578           
+            else:
+                a0, a1, a2, a3, a4, b0, b1, b2, b3, b4, b5, c0, c1, c2, c3, c4 = 0.38, 0.02524, 0.01269, -0.07726, 0.11671, -27.19, 0.0073, -0.0228, 0.5667, -1.98, 2.75, 8.66, 0.01218, 0.02976, -0.31373, 0.25452
+            
+            if dbh <= 10:
+                vol_spruce = (( a0 + a1 * dbh * dbh * height + a2 * dbh * height * height + a3 * height * height + a4 * dbh * height)/1000) *  n_tree
+            elif dbh > 10 and dbh <= 13:
+                vol_spruce = ((b0 + b1 * dbh * height * height + b2 * height * height + b3 * dbh * height + b4 * height + b5 * dbh)/1000) *  n_tree
+            else:
+                vol_spruce = ((c0 + c1 * dbh * dbh * height + c2 * dbh * height * height + c3 * height * height + c4 * dbh * height)/1000) *  n_tree
+            
+        elif sp == "scots_pine":  
+            if aboveBark:
+                a0, a1, a2, b0, b1, b2, b3 = 2.9121, 0.039994, - 0.001091, 8.6524, 0.076844, 0.031573, 0
+            else:
+                a0, a1, a2, b0, b1, b2, b3 = 2.2922, 0.040072, 0.00216, -3.5425, 0.128182, 0.028268, 0.008216
+                
+            if dbh <= 11:
+                vol_pine = max(0, (((a0 + a1 * dbh * dbh * height + a2 * dbh * height * height)/1000) *  n_tree))
+            else:
+                vol_pine = max(0, (((b0 + b1 * dbh * dbh + b2 * dbh * dbh * height + b3 * dbh * height + height)/1000) *  n_tree))
+
+                
+        elif sp == "birch":
+            
+            B = 1.046 * dbh
+            
+            if aboveBark:
+                a0, a1, a2, a3, a4, a5 = -1.25409 , 0.12739, 0.03166, 0.0009752, -0.01226, -0.004214
+            else:
+                a0, a1, a2, a3, a4, a5 = -1.48081 , 0.16945, 0.01834, 0.01018, -0.0451 , 0
+                
+            vol_birch = max(0, (((a0 + a1 * dbh * dbh + a2 * dbh * dbh * height + a3 * dbh * height * height + a4 * height * height + a5 * dbh * dbh * B)/1000) *  n_tree))
+
+#        elif sp in other_broadleaves_species or sp in ROS_species or sp in warm_species:
+        
+        elif sp == "other_broadleaves":
+             
+            B = 1.046 * dbh
+            
+            if aboveBark:
+                a0, a1, a2, a3, a4 = -1.86827 , 0.21461, 0.01283, 0.0138, -0.06311
+                #a0, a1, a2, a3, a4, a5 = -1.25409, 0.12739, 0.03166, 0.0009752, - 0.01226, - 0.004214
+            else:
+                a0, a1, a2, a3, a4, a5 = -1.86827 , 0.21461, 0.01283, 0.0138, -0.06311, 0
+            #V = max(0, (a0 + a1 * dbh * dbh + a2 * dbh * dbh * height + a3 * dbh * height * height + a4 * height * height + a5 * dbh * dbh * B)) 
+            vol_others = max(0, (((a0 + a1 * dbh * dbh + a2 * dbh * dbh * height + a3 * dbh * height * height + a4 * height * height)/1000) *  n_tree))
+        
+        elif sp == "ROS":
+             
+            B = 1.046 * dbh
+            
+            if aboveBark:
+                a0, a1, a2, a3, a4 = -1.86827 , 0.21461, 0.01283, 0.0138, -0.06311
+                #a0, a1, a2, a3, a4, a5 = -1.25409, 0.12739, 0.03166, 0.0009752, - 0.01226, - 0.004214
+            else:
+                a0, a1, a2, a3, a4, a5 = -1.86827 , 0.21461, 0.01283, 0.0138, -0.06311, 0
+            #V = max(0, (a0 + a1 * dbh * dbh + a2 * dbh * dbh * height + a3 * dbh * height * height + a4 * height * height + a5 * dbh * dbh * B)) 
+            vol_ROS = max(0, (((a0 + a1 * dbh * dbh + a2 * dbh * dbh * height + a3 * dbh * height * height + a4 * height * height)/1000) *  n_tree))      
+        
+        elif sp == "warm":
+             
+            B = 1.046 * dbh
+            
+            if aboveBark:
+                a0, a1, a2, a3, a4 = -1.86827 , 0.21461, 0.01283, 0.0138, -0.06311
+                #a0, a1, a2, a3, a4, a5 = -1.25409, 0.12739, 0.03166, 0.0009752, - 0.01226, - 0.004214
+            else:
+                a0, a1, a2, a3, a4, a5 = -1.86827 , 0.21461, 0.01283, 0.0138, -0.06311, 0
+            #V = max(0, (a0 + a1 * dbh * dbh + a2 * dbh * dbh * height + a3 * dbh * height * height + a4 * height * height + a5 * dbh * dbh * B)) 
+            vol_warm = max(0, (((a0 + a1 * dbh * dbh + a2 * dbh * dbh * height + a3 * dbh * height * height + a4 * height * height)/1000) *  n_tree))      
+        
+        
+        volsum = vol_spruce + vol_pine + vol_birch + vol_others + vol_ROS + vol_warm
+
+        return volsum, vol_spruce, vol_pine, vol_birch , vol_others, vol_ROS , vol_warm
+        
 
                                                     # %%%%%     update Biomass       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%        
     
@@ -1120,7 +1227,7 @@ class GrowthModel():
         
         attributes = dict(plot_id = self.DERIVED_TREES[s].plot_id,tree_id = self.DERIVED_TREES[s].tree_id,tree_sp = self.DERIVED_TREES[s].tree_sp, year = self.DERIVED_TREES[s].year, dbh = self.DERIVED_TREES[s].dbh , height = self.DERIVED_TREES[s].height, 
                           diameter_class = self.DERIVED_TREES[s].diameter_class, tree_Factor = self.DERIVED_TREES[s].tree_Factor, n_tree = self.DERIVED_TREES[s].n_tree, SI_spp = self.DERIVED_TREES[s].SI_spp,altitude_m = self.DERIVED_TREES[s].altitude_m, 
-                          SI_m = self.DERIVED_TREES[s].SI_m, LAT = self.DERIVED_TREES[s].LAT, species = self.DERIVED_TREES[s].species, t_age = self.DERIVED_TREES[s].t_age , Period = self.DERIVED_TREES[s].Period,  Num_DeadTrees =  self.DERIVED_TREES[s].Num_DeadTrees, 
+                          SI_m = self.DERIVED_TREES[s].SI_m, LAT = self.DERIVED_TREES[s].LAT, species = self.DERIVED_TREES[s].species, t_age = self.DERIVED_TREES[s].t_age , Period = self.DERIVED_TREES[s].Period, yr_since_dead =self.DERIVED_TREES[s].yr_since_dead, Num_DeadTrees =  self.DERIVED_TREES[s].Num_DeadTrees, 
                           Dom_species = self.DERIVED_TREES[s].Dom_species, BGB = Biomass_BGB, Tot_co2 = Tot_co2, Tot_biomass = Tot_biomass, Total_carbon = Total_carbon, Tot_carbon_stems = Tot_carbon_stems , Tot_carbon_roots = Tot_carbon_roots, Tot_co2_stems = Tot_co2_stems, 
                           Tot_co2_roots = Tot_co2_roots, vol_increment = self.DERIVED_TREES[s].vol_increment, dead_volume = self.DERIVED_TREES[s].dead_volume, dead_co2 = self.DERIVED_TREES[s].dead_co2, dead_biomass= self.DERIVED_TREES[s].dead_biomass, 
                           dead_C = self.DERIVED_TREES[s].dead_C, R_SPulp = self.DERIVED_TREES[s].R_SPulp, R_PPulp = self.DERIVED_TREES[s].R_PPulp, R_HPulp = self.DERIVED_TREES[s].R_HPulp, R_SSaw =  self.DERIVED_TREES[s].R_SSaw , R_PSaw = self.DERIVED_TREES[s].R_PSaw, 
@@ -1218,7 +1325,8 @@ class GrowthModel():
         if INC1 > 100:    # a 5-year increment should not go over 100 mm 
             INC1 = 100
         if INC1 < 0:
-            INC1 = 0            
+            INC1 = 0
+            
 #        if Ht > 70 and self.t <=:    # If height threshold of 7 m is reached for young stands
 #            INC1 = 0
 #        self.GROWTH.append((k, DBH, INC1)) 
@@ -1258,7 +1366,7 @@ class GrowthModel():
         if INC > 300:   # a 5-year increment should not go over 3 m (60 cm/year)
             INC = 300
         if INC < 0:
-            INC = 0            
+            INC = 0
 #        if Ht > 70 and self.t <= :    # If height treshold of 7 m is reached  for young stands
 #            INC = 0
             
@@ -2098,12 +2206,12 @@ class GrowthModel():
                        
         for dom_spp in GrowthModel.Dominant_Height()[1]:
             Dom_species = dom_spp
-
+        
         t_age = GrowthModel.tree_age(GrowthModel.DERIVED_TREES[s],s)
 #        GrowthModel.GROWTH.append((tree_id,n_tree, GrowthModel.DERIVED_TREES[s].Period))
         attributes = dict(plot_id = GrowthModel.DERIVED_TREES[s].plot_id, tree_id = tree_id, tree_sp = tree_sp, year = year, dbh = dbh , height = height , diameter_class = Diameter_Class, 
                           tree_Factor = TF, n_tree = n_tree, SI_spp = GrowthModel.DERIVED_TREES[s].SI_spp,altitude_m =altitude_m , SI_m = SI_m, LAT = GrowthModel.DERIVED_TREES[s].LAT,
-                          species = species, t_age = t_age, Period = period, Num_DeadTrees = dead_trees, Dom_species = Dom_species, BGB = BGB, Tot_co2 = Tot_co2, Tot_biomass = Tot_biomass, Total_carbon = Total_carbon, 
+                          species = species, t_age = t_age, Period = period, yr_since_dead = 0 , Num_DeadTrees = dead_trees, Dom_species = Dom_species, BGB = BGB, Tot_co2 = Tot_co2, Tot_biomass = Tot_biomass, Total_carbon = Total_carbon, 
                           Tot_carbon_stems= Tot_carbon_stems,  Tot_carbon_roots = Tot_carbon_roots, Tot_co2_stems = Tot_co2_stems , Tot_co2_roots = Tot_co2_roots, vol_increment = 0. , dead_volume = 0., dead_co2 = 0., 
                           dead_biomass= 0., dead_C = 0.,  R_SPulp = GrowthModel.DERIVED_TREES[t].R_SPulp, R_PPulp = 0. , R_HPulp = 0., R_SSaw = 0. , R_PSaw = 0., R_HSaw = 0., Biomass_BAR = Biomass_BAR,
                           Biomass_LGR = Biomass_LGR, Biomass_RGE5 = Biomass_RGE5, Biomass_RLT5= Biomass_RLT5,unwl = unwl, ufwl= ufwl, ucwl = ucwl , temp = GrowthModel.DERIVED_TREES[s].temp,coord_x = coord_x, coord_y = coord_y,
@@ -2420,7 +2528,7 @@ class GrowthModel():
         
         attributes = dict(plot_id = GrowthModel.DERIVED_TREES[s].plot_id, tree_id = tree_id, tree_sp = GrowthModel.DERIVED_TREES[s].tree_sp, year = year, dbh = dbh , height = height , 
                           diameter_class = Diameter_Class, tree_Factor = TF, n_tree = n_tree, SI_spp = GrowthModel.DERIVED_TREES[s].SI_spp, altitude_m = GrowthModel.DERIVED_TREES[s].altitude_m, 
-                          SI_m = SI_m , LAT = GrowthModel.DERIVED_TREES[s].LAT,species = species,  t_age = t_age, Period = period , Num_DeadTrees = dead_trees, 
+                          SI_m = SI_m , LAT = GrowthModel.DERIVED_TREES[s].LAT,species = species,  t_age = t_age, Period = period, yr_since_dead = 0 , Num_DeadTrees = dead_trees, 
                           Dom_species = Dom_species, BGB = BGB, Tot_co2 = Tot_co2, Tot_biomass = Tot_biomass, Total_carbon = Total_carbon,Tot_carbon_stems= Tot_carbon_stems,  Tot_carbon_roots = Tot_carbon_roots, 
                           Tot_co2_stems = Tot_co2_stems , Tot_co2_roots = Tot_co2_roots, vol_increment = 0., dead_volume = 0., dead_co2 = 0., dead_biomass= 0., dead_C = 0.,  R_SPulp = 0. , R_PPulp = 0. , R_HPulp = 0., 
                           R_SSaw = 0. , R_PSaw = 0., R_HSaw = 0., Biomass_BAR = Biomass_BAR, Biomass_LGR = Biomass_LGR, Biomass_RGE5 = Biomass_RGE5, Biomass_RLT5= Biomass_RLT5, unwl = unwl, ufwl = ufwl, ucwl = ucwl , 
@@ -2489,7 +2597,7 @@ class GrowthModel():
             attributes = dict(plot_id = self.DERIVED_TREES[t].plot_id,tree_id = self.DERIVED_TREES[t].tree_id,tree_sp = self.DERIVED_TREES[t].tree_sp, year = year,  dbh = self.DERIVED_TREES[t].dbh , 
                               height = self.DERIVED_TREES[t].height, diameter_class = self.DERIVED_TREES[t].diameter_class, tree_Factor =self.DERIVED_TREES[t].tree_Factor, n_tree =self.DERIVED_TREES[t].n_tree,
                               SI_spp = self.DERIVED_TREES[t].SI_spp,altitude_m = self.DERIVED_TREES[t].altitude_m, SI_m = self.DERIVED_TREES[t].SI_m, LAT = self.DERIVED_TREES[t].LAT, species = self.DERIVED_TREES[t].species, 
-                              t_age =self.DERIVED_TREES[t].t_age , Period = period, Num_DeadTrees = self.DERIVED_TREES[t].Num_DeadTrees, Dom_species = self.DERIVED_TREES[t].Dom_species, BGB = self.DERIVED_TREES[t].BGB, 
+                              t_age =self.DERIVED_TREES[t].t_age , Period = period, yr_since_dead = 0, Num_DeadTrees = self.DERIVED_TREES[t].Num_DeadTrees, Dom_species = self.DERIVED_TREES[t].Dom_species, BGB = self.DERIVED_TREES[t].BGB, 
                               Tot_co2 = self.DERIVED_TREES[t].Tot_co2, Total_carbon = self.DERIVED_TREES[t].Total_carbon, Tot_carbon_stems = self.DERIVED_TREES[t].Tot_carbon_stems , Tot_carbon_roots = self.DERIVED_TREES[t].Tot_carbon_roots, 
                               Tot_co2_stems = self.DERIVED_TREES[t].Tot_co2_stems, Tot_co2_roots = self.DERIVED_TREES[t].Tot_co2_roots, Tot_biomass = self.DERIVED_TREES[t].Tot_biomass, vol_increment = volume_increment, 
                               dead_volume = self.DERIVED_TREES[t].dead_volume, dead_co2 = self.DERIVED_TREES[t].dead_co2, dead_biomass= self.DERIVED_TREES[t].dead_biomass, dead_C = self.DERIVED_TREES[t].dead_C,  
@@ -2554,8 +2662,9 @@ class GrowthModel():
         dbh = D/10  # convert to centimeter
         height = H / 10 # convert to meter
         sp= SP
+        
         Compute_biomass_abh = lambda dAdd, dCoef, hCoef, lnhCoef, const: exp(const + dCoef * (dbh/(dbh + dAdd))+ hCoef * height + lnhCoef * log(height))	
-        Compute_biomass_ab = lambda dAdd, dCoef, const: np.exp(const + dCoef * (dbh/(dbh + dAdd)))
+        Compute_biomass_ab = lambda dAdd, dCoef, const: exp(const + dCoef * (dbh/(dbh + dAdd)))
         
         
         if sp == "spruce":
@@ -2589,7 +2698,7 @@ class GrowthModel():
             Carbon_STU  = Carbon_conversion_factor * Biomass_STU
             CO2_STU     = CO2_Fraction * Carbon_STU
             
-            Biomass_RGE5= Compute_biomass_ab(8,13.3703,-6.3851)
+            Biomass_RGE5 = Compute_biomass_ab(8,13.3703,-6.3851)
             Carbon_RGE5  = Carbon_conversion_factor * Biomass_RGE5
             CO2_RGE5     = CO2_Fraction * Carbon_RGE5
             
@@ -3176,7 +3285,7 @@ class GrowthModel():
      
                                                     # %%%%%    Models for the remaining fraction of mass of deadwoods    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
     
-    def deadwood_decay_mass(self, M_spti_1, M_spti_2, M_spti_3, M_spti_4, M_spti_5,M_spti_6):
+    def deadwood_decay_mass(self): #, M_spti_1, M_spti_2, M_spti_3, M_spti_4, M_spti_5,M_spti_6
         
         """
         according to Mäkinen et al. (2006), this function calculate the remaining fraction of mass of f Scots pine, Norway spruce, and birch
@@ -3228,43 +3337,6 @@ class GrowthModel():
 
         SD_delta_1spt, SD_delta_2spt, SD_delta_3spt =   0.850, 1.116, 1.007
 
-        
-        Mass_spruce,Mass_pine, Mass_birch, Mass_others, Mass_ROS, Mass_warm = 0.,0.,0.,0.,0.,0.
-
-        y_spti_spruce,y_spti_pine, y_spti_birch, y_spti_others, y_spti_ROS, y_spti_warm = 0., 0., 0., 0., 0., 0.
-
-        dbh_spt0_spruce, dbh_spt0_pine,dbh_spt0_birch,dbh_spt0_other, dbh_spt0_ROS,dbh_spt0_warm = 0., 0., 0., 0., 0., 0.
-
-        
-        for stem in Deadtrees:
-            if self.DERIVED_TREES[stem].species == "spruce":
-                Mass_spruce +=  GrowthModel.DERIVED_TREES[stem].dead_biomass/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
-                y_spti_spruce = GrowthModel.DERIVED_TREES[stem].DeadList['Period']*5
-                dbh_spt0_spruce = GrowthModel.DERIVED_TREES[stem].dbh/10
-            elif self.DERIVED_TREES[stem].species == "scots_pine":
-                Mass_pine +=  GrowthModel.DERIVED_TREES[stem].dead_biomass/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
-                y_spti_pine = GrowthModel.DERIVED_TREES[stem].DeadList['Period']*5
-                dbh_spt0_pine = GrowthModel.DERIVED_TREES[stem].dbh/10
-            elif self.DERIVED_TREES[stem].species == "birch":
-                Mass_birch +=  GrowthModel.DERIVED_TREES[stem].dead_biomass/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
-                y_spti_birch = GrowthModel.DERIVED_TREES[stem].DeadList['Period']*5
-                dbh_spt0_birch = GrowthModel.DERIVED_TREES[stem].dbh/10
-            elif self.DERIVED_TREES[stem].species == "other_broadleaves":
-                Mass_others +=  GrowthModel.DERIVED_TREES[stem].dead_biomass/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
-                y_spti_others = GrowthModel.DERIVED_TREES[stem].DeadList['Period']*5
-                dbh_spt0_other = GrowthModel.DERIVED_TREES[stem].dbh/10            
-            elif self.DERIVED_TREES[stem].species == "ROS":
-                Mass_ROS +=  GrowthModel.DERIVED_TREES[stem].dead_biomass/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
-                y_spti_ROS = GrowthModel.DERIVED_TREES[stem].DeadList['Period']*5
-                dbh_spt0_ROS = GrowthModel.DERIVED_TREES[stem].dbh/10                    
-            else:
-                Mass_warm +=  GrowthModel.DERIVED_TREES[stem].dead_biomass/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
-                y_spti_warm = GrowthModel.DERIVED_TREES[stem].DeadList['Period']*5
-                dbh_spt0_warm = GrowthModel.DERIVED_TREES[stem].dbh/10
-                
-                  
-                
-                
         mu = 0        
         
         delta_2spt = np.random.normal(mu, SD_delta_2spt, 1) #spruce
@@ -3272,85 +3344,160 @@ class GrowthModel():
         delta_3spt = np.random.normal(mu, SD_delta_3spt, 1) #birch
         delta_4spt = np.random.normal(mu, SD_delta_3spt, 1) #other
         delta_5spt = np.random.normal(mu, SD_delta_3spt, 1) #ROS           
-        delta_6spt = np.random.normal(mu, SD_delta_3spt, 1) #warm  
+        delta_6spt = np.random.normal(mu, SD_delta_3spt, 1) #warm   
+
         
-        if Deadtrees_spruce >= 0.1:
-            remain_fraction_spruce = exp(-1 * exp(d2 + (d5 * y_spti_spruce) + (d7 * dbh_spt0_spruce) + delta_2spt ))
-        else:
-            remain_fraction_spruce = 0.
+        T_Mass_spruce, T_Mass_pine, T_Mass_birch, T_Mass_others, T_Mass_ROS, T_Mass_warm = 0.,0.,0.,0.,0.,0.
+
+        y_spti_spruce,y_spti_pine, y_spti_birch, y_spti_others, y_spti_ROS, y_spti_warm = 0., 0., 0., 0., 0., 0.
+
+        dbh_spt0_spruce, dbh_spt0_pine,dbh_spt0_birch,dbh_spt0_other, dbh_spt0_ROS,dbh_spt0_warm = 0., 0., 0., 0., 0., 0.
+
+        Total_V_remain_spruce,Total_V_remain_pine,Total_V_remain_birch, Total_V_remain_others, Total_V_remain_ROS, Total_V_remain_warm   = 0., 0., 0., 0., 0., 0.
+        
+        T_Decomposition_spruce, T_Decomposition_pine,T_Decomposition_birch, T_Decomposition_others, T_Decomposition_ROS, T_Decomposition_warm  = 0., 0., 0., 0., 0., 0.
+        
+        
+        for stem in Deadtrees:
+            if self.DERIVED_TREES[stem].species == "spruce":
+                Mass_spruce    =  GrowthModel.DERIVED_TREES[stem].dead_biomass/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
+                T_Mass_spruce += Mass_spruce
+                y_spti_spruce = GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead']*5
+                dbh_spt0_spruce = GrowthModel.DERIVED_TREES[stem].dbh/10
+                if Deadtrees_spruce >= 0.1:
+                    remain_fraction_spruce = exp(-1 * exp(d2 + (d5 * y_spti_spruce) + (d7 * dbh_spt0_spruce) + delta_2spt ))
+                else:
+                    remain_fraction_spruce = 0.   
+                    
+                M_remain_spruce         =  Mass_spruce * remain_fraction_spruce
+                Decomposition_spruce    =  Mass_spruce - M_remain_spruce
+                Total_V_remain_spruce  += M_remain_spruce
+                T_Decomposition_spruce += Decomposition_spruce
             
-        if Deadtrees_pine >= 0.1:
-            remain_fraction_pine   = exp(-1 * exp(d1 + (d4 * y_spti_pine)   + (d7 * dbh_spt0_pine) + delta_1spt ))
-        else:
-            remain_fraction_pine = 0.
+            elif self.DERIVED_TREES[stem].species == "scots_pine":
+                Mass_pine      =  GrowthModel.DERIVED_TREES[stem].dead_biomass/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
+                T_Mass_pine   += Mass_pine
+                y_spti_pine    = GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead']*5
+                dbh_spt0_pine  = GrowthModel.DERIVED_TREES[stem].dbh/10
+                if Deadtrees_pine >= 0.1:
+                    remain_fraction_pine   = exp(-1 * exp(d1 + (d4 * y_spti_pine)   + (d7 * dbh_spt0_pine) + delta_1spt ))
+                else:
+                    remain_fraction_pine = 0.
+                    
+                M_remain_pine         =  Mass_pine * remain_fraction_pine
+                Decomposition_pine    =  Mass_pine - M_remain_pine
+                Total_V_remain_pine  += M_remain_pine
+                T_Decomposition_pine += Decomposition_pine
+                
+            elif self.DERIVED_TREES[stem].species == "birch":
+                Mass_birch     =  GrowthModel.DERIVED_TREES[stem].dead_biomass/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
+                T_Mass_birch  += Mass_birch
+                y_spti_birch   = GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead']*5
+                dbh_spt0_birch = GrowthModel.DERIVED_TREES[stem].dbh/10
+                if Deadtrees_birch >= 0.1:
+                    remain_fraction_birch  = exp(-1 * exp(d3 + (d6 * y_spti_birch)  + (d7 * dbh_spt0_birch) + delta_3spt))
+                else:
+                    remain_fraction_birch = 0.
+                    
+                M_remain_birch         =  Mass_birch * remain_fraction_birch
+                Decomposition_birch    =  Mass_birch - M_remain_birch
+                Total_V_remain_birch  += M_remain_birch
+                T_Decomposition_birch += Decomposition_birch
             
-        if Deadtrees_birch >= 0.1:
-            remain_fraction_birch  = exp(-1 * exp(d3 + (d6 * y_spti_birch)  + (d7 * dbh_spt0_birch) + delta_3spt))
-        else:
-            remain_fraction_birch = 0.
+            elif self.DERIVED_TREES[stem].species == "other_broadleaves":
+                Mass_others    =  GrowthModel.DERIVED_TREES[stem].dead_biomass/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
+                T_Mass_others +=  Mass_others
+                y_spti_others  = GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead']*5
+                dbh_spt0_other = GrowthModel.DERIVED_TREES[stem].dbh/10  
+                if Deadtrees_other >= 0.1:
+                    remain_fraction_others = exp(-1 * exp(d3 + (d6 * y_spti_others) + (d7 * dbh_spt0_other) + delta_4spt))
+                else:
+                    remain_fraction_others = 0.
+                    
+                M_remain_others         =  Mass_others * remain_fraction_others
+                Decomposition_others    =  Mass_others - M_remain_others
+                Total_V_remain_others  += M_remain_others
+                T_Decomposition_others += Decomposition_others
             
-        if Deadtrees_other >= 0.1:
-            remain_fraction_others = exp(-1 * exp(d3 + (d6 * y_spti_others) + (d7 * dbh_spt0_other) + delta_4spt))
-        else:
-            remain_fraction_others = 0.
+            elif self.DERIVED_TREES[stem].species == "ROS":
+                Mass_ROS     =  GrowthModel.DERIVED_TREES[stem].dead_biomass/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
+                T_Mass_ROS  += Mass_ROS
+                y_spti_ROS   = GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead']*5
+                dbh_spt0_ROS = GrowthModel.DERIVED_TREES[stem].dbh/10   
+                if Deadtrees_ROS >= 0.1:
+                    remain_fraction_ROS = exp(-1 * exp(d3 + (d6 * y_spti_ROS) + (d7 * dbh_spt0_ROS) + delta_5spt))
+                else:
+                    remain_fraction_ROS = 0. 
+                    
+                M_remain_ROS         =  Mass_ROS * remain_fraction_ROS
+                Decomposition_ROS    =  Mass_ROS - M_remain_ROS
+                Total_V_remain_ROS  += M_remain_ROS
+                T_Decomposition_ROS += Decomposition_ROS
             
-        if Deadtrees_ROS >= 0.1:
-            remain_fraction_ROS = exp(-1 * exp(d3 + (d6 * y_spti_ROS) + (d7 * dbh_spt0_ROS) + delta_5spt))
-        else:
-            remain_fraction_ROS = 0.
-
-        if Deadtrees_warm >= 0.1:
-            remain_fraction_warm = exp(-1 * exp(d3 + (d6 * y_spti_warm) + (d7 * dbh_spt0_warm) + delta_5spt))
-        else:
-            remain_fraction_warm = 0.            
+            else:
+                Mass_warm     = GrowthModel.DERIVED_TREES[stem].dead_biomass/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
+                T_Mass_warm  += Mass_warm
+                y_spti_warm   = GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead']*5
+                dbh_spt0_warm = GrowthModel.DERIVED_TREES[stem].dbh/10
+                if Deadtrees_warm >= 0.1:
+                    remain_fraction_warm = exp(-1 * exp(d3 + (d6 * y_spti_warm) + (d7 * dbh_spt0_warm) + delta_5spt))
+                else:
+                    remain_fraction_warm = 0. 
+                
+                M_remain_warm        =  Mass_warm * remain_fraction_warm
+                Decomposition_warm    =  Mass_warm - M_remain_warm
+                Total_V_remain_warm  += M_remain_warm
+                T_Decomposition_warm += Decomposition_warm
             
-        #GrowthModel.GROWTH.append((remain_fraction_spruce,y_spti_spruce)) 
-        M_spt0_spruce = Mass_spruce + M_spti_1
-        M_spt0_pine = Mass_pine + M_spti_2
-        M_spt0_birch = Mass_birch + M_spti_3
-        M_spt0_others = Mass_others + M_spti_4
-        M_spt0_ROS = Mass_ROS + M_spti_5
-        M_spt0_warm = Mass_warm + M_spti_6
         
-        M_spti_spruce = M_spt0_spruce * remain_fraction_spruce
-        Decomposition_spruce = M_spt0_spruce - M_spti_spruce
+            
+#        #GrowthModel.GROWTH.append((remain_fraction_spruce,y_spti_spruce)) 
+#        M_spt0_spruce = Mass_spruce #+ M_spti_1
+#        M_spt0_pine = Mass_pine #+ M_spti_2
+#        M_spt0_birch = Mass_birch #+ M_spti_3
+#        M_spt0_others = Mass_others #+ M_spti_4
+#        M_spt0_ROS = Mass_ROS #+ M_spti_5
+#        M_spt0_warm = Mass_warm #+ M_spti_6
+#        
+#        M_spti_spruce = M_spt0_spruce * remain_fraction_spruce
+#        Decomposition_spruce = M_spt0_spruce - M_spti_spruce
+#
+#        
+#        M_spti_pine = M_spt0_pine * remain_fraction_pine
+#        Decomposition_pine = M_spt0_pine - M_spti_pine
+#
+#        
+#        M_spti_birch = M_spt0_birch * remain_fraction_birch
+#        Decomposition_birch = M_spt0_birch - M_spti_birch
+#
+#        
+#        M_spti_others = M_spt0_others * remain_fraction_others
+#        Decomposition_other = M_spt0_others - M_spti_others
+#
+#        M_spti_ROS = M_spt0_ROS * remain_fraction_ROS
+#        Decomposition_ROS = M_spt0_ROS - M_spti_ROS
+#
+#        M_spti_warm = M_spt0_warm * remain_fraction_warm
+#        Decomposition_warm = M_spt0_warm - M_spti_warm
 
         
-        M_spti_pine = M_spt0_pine * remain_fraction_pine
-        Decomposition_pine = M_spt0_pine - M_spti_pine
-
-        
-        M_spti_birch = M_spt0_birch * remain_fraction_birch
-        Decomposition_birch = M_spt0_birch - M_spti_birch
-
-        
-        M_spti_others = M_spt0_others * remain_fraction_others
-        Decomposition_other = M_spt0_others - M_spti_others
-
-        M_spti_ROS = M_spt0_ROS * remain_fraction_ROS
-        Decomposition_ROS = M_spt0_ROS - M_spti_ROS
-
-        M_spti_warm = M_spt0_warm * remain_fraction_warm
-        Decomposition_warm = M_spt0_warm - M_spti_warm
-
-        
-        Decomposition= Decomposition_spruce + Decomposition_pine + Decomposition_birch + Decomposition_other + Decomposition_ROS + Decomposition_warm
+        Decomposition=  T_Decomposition_spruce + T_Decomposition_pine +T_Decomposition_birch + T_Decomposition_others + T_Decomposition_ROS + T_Decomposition_warm 
 
         Dead_wood_carbon =  0.5  * Decomposition
         Dead_wood_co2 = 3.67 * Dead_wood_carbon
         
         
         
-        return M_spti_spruce, M_spti_pine, M_spti_birch, M_spti_others, M_spti_ROS, M_spti_warm,  Dead_wood_co2, Dead_wood_carbon
+        return  Dead_wood_co2, Dead_wood_carbon #M_spti_spruce, M_spti_pine, M_spti_birch, M_spti_others, M_spti_ROS, M_spti_warm, 
     
     
     
                                                 # %%%%%     Biodiversity indicator - amount of deadwood  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
-    def deadwood_decay_vol(self, V_spti_1, V_spti_2, V_spti_3, V_spti_4, V_spti_5, V_spti_6):
+    def deadwood_decay_vol(self, volume_deadwood_p0): 
         
         """
-        according to Mäkinen et al. (2006), this function calculate the remaining fraction of stem volume
+        according to Mäkinen et al. (2006) table 8, this function calculate the remaining fraction of stem volume
         
         inputs
         ------
@@ -3375,16 +3522,25 @@ class GrowthModel():
         """
         
         
-        Deadtrees = [k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0]
+        Deadtrees = [k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0] 
         
-        Deadtrees_spruce = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].species == "spruce"])) 
-        Deadtrees_pine = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].species == "scots_pine"])) 
-        Deadtrees_birch = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].species == "birch"]))
-        Deadtrees_other = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].species == "other_broadleaves"]))
-        Deadtrees_ROS = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].species == "ROS"]))
-        Deadtrees_warm = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].species == "warm"]))       
+#        GrowthModel.GROWTH.append((Deadtrees))
+                
+        Deadtrees_spruce = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0 and GrowthModel.DERIVED_TREES[k].species == "spruce"])) 
+        Deadtrees_pine = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0 and GrowthModel.DERIVED_TREES[k].species == "scots_pine"])) 
+        Deadtrees_birch = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0 and GrowthModel.DERIVED_TREES[k].species == "birch"]))
+        Deadtrees_other = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0 and GrowthModel.DERIVED_TREES[k].species == "other_broadleaves"]))
+        Deadtrees_ROS = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0 and GrowthModel.DERIVED_TREES[k].species == "ROS"]))
+        Deadtrees_warm = len(set([k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0 and GrowthModel.DERIVED_TREES[k].species == "warm"]))       
+#        keysP1 = [k for k in GrowthModel.DeadTrees.keys() if GrowthModel.DERIVED_TREES[k].Num_DeadTrees != 0]
+#        valuesP1= [GrowthModel.DERIVED_TREES[k].DeadList['yr_since_dead'] for k in keysP1]
+#        keysP0 = keysP0
+#        valuesP0 = valuesP0
+#        y_spti = dict(zip(keysP1, valuesP1))
+#        y_spt0 = dict(zip(keysP0, valuesP0))
 
-         
+
+        
         num_trees = len(Deadtrees)
         
         if Deadtrees_spruce == 0: Deadtrees_spruce = 0.0001
@@ -3404,43 +3560,6 @@ class GrowthModel():
 
         SD_gamma_1spt, SD_gamma_2spt, SD_gamma_3spt =   1.191, 0.912,  1.091
 
-        
-        volume_spruce, volume_pine, volume_birch,volume_others, volume_ROS, volume_warm   = 0., 0., 0., 0., 0., 0.
-        
-        y_spti_spruce, y_spti_pine, y_spti_birch, y_spti_others, y_spti_ROS, y_spti_warm  = 0., 0., 0., 0., 0., 0.
-
-        
-        dbh_spt0_spruce, dbh_spt0_pine, dbh_spt0_birch,dbh_spt0_other, dbh_spt0_ROS, dbh_spt0_warm = 0., 0., 0., 0., 0., 0.
-        
-        for stem in Deadtrees:
-            if self.DERIVED_TREES[stem].species == "spruce":
-                volume_spruce +=  GrowthModel.DERIVED_TREES[stem].dead_volume/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
-                y_spti_spruce = GrowthModel.DERIVED_TREES[stem].DeadList['Period']*5
-                dbh_spt0_spruce = GrowthModel.DERIVED_TREES[stem].dbh/10
-            elif self.DERIVED_TREES[stem].species == "scots_pine":
-                
-                volume_pine +=  GrowthModel.DERIVED_TREES[stem].dead_volume/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
-                y_spti_pine = GrowthModel.DERIVED_TREES[stem].DeadList['Period']*5
-                dbh_spt0_pine = GrowthModel.DERIVED_TREES[stem].dbh/10
-            elif self.DERIVED_TREES[stem].species == "birch":
-                volume_birch +=  GrowthModel.DERIVED_TREES[stem].dead_volume/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
-                y_spti_birch = GrowthModel.DERIVED_TREES[stem].DeadList['Period']*5
-                dbh_spt0_birch = GrowthModel.DERIVED_TREES[stem].dbh/10             
-            elif self.DERIVED_TREES[stem].species == "other_broadleaves":
-                volume_others +=  GrowthModel.DERIVED_TREES[stem].dead_volume/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
-                y_spti_others = GrowthModel.DERIVED_TREES[stem].DeadList['Period']*5
-                dbh_spt0_other = GrowthModel.DERIVED_TREES[stem].dbh/10            
-            elif self.DERIVED_TREES[stem].species == "ROS":
-                volume_ROS +=  GrowthModel.DERIVED_TREES[stem].dead_volume/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
-                y_spti_ROS = GrowthModel.DERIVED_TREES[stem].DeadList['Period']*5
-                dbh_spt0_ROS = GrowthModel.DERIVED_TREES[stem].dbh/10                    
-            else:
-                volume_warm +=  GrowthModel.DERIVED_TREES[stem].dead_volume/1000 *  GrowthModel.DERIVED_TREES[stem].Num_DeadTrees
-                y_spti_warm = GrowthModel.DERIVED_TREES[stem].DeadList['Period']*5
-                dbh_spt0_warm = GrowthModel.DERIVED_TREES[stem].dbh/10                            
-                  
-                
-                
         mu = 0        
         
         gamma_2spt = np.random.normal(mu, SD_gamma_2spt, 1) #spruce
@@ -3449,82 +3568,136 @@ class GrowthModel():
         gamma_4spt = np.random.normal(mu, SD_gamma_3spt, 1) #other
         gamma_5spt = np.random.normal(mu, SD_gamma_3spt, 1) #ROS
         gamma_6spt = np.random.normal(mu, SD_gamma_3spt, 1) #warm
-           
-     
-        if Deadtrees_spruce >= 0.1:
-            remain_fraction_spruce = exp(-1 * exp(c2 + (c5 * y_spti_spruce) + (c7 * dbh_spt0_spruce) + gamma_2spt ))
-        else:
-            remain_fraction_spruce = 0.
-            
-        if Deadtrees_pine >= 0.1:
-            remain_fraction_pine   = exp(-1 * exp(c1 + (c4 * y_spti_pine)   + (c7 * dbh_spt0_pine) + gamma_1spt ))
-        else:
-            remain_fraction_pine = 0.
-            
-        if Deadtrees_birch >= 0.1:
-            remain_fraction_birch  = exp(-1 * exp(c3 + (c6 * y_spti_birch)  + (c7 * dbh_spt0_birch) + gamma_3spt))
-        else:
-            remain_fraction_birch = 0.
-
-        if Deadtrees_other >= 0.1:
-            remain_fraction_others = exp(-1 * exp(c3 + (c6 * y_spti_others) + (c7 * dbh_spt0_other) + gamma_4spt))
-        else:
-            remain_fraction_others = 0.
-            
-        if Deadtrees_ROS >= 0.1:
-            remain_fraction_ROS = exp(-1 * exp(c3 + (c6 * y_spti_ROS) + (c7 * dbh_spt0_ROS) + gamma_5spt))
-        else:
-            remain_fraction_ROS = 0.
-
-        if Deadtrees_warm >= 0.1:
-            remain_fraction_warm = exp(-1 * exp(c3 + (c6 * y_spti_warm) + (c7 * dbh_spt0_warm) + gamma_6spt))
-        else:
-            remain_fraction_warm = 0.  
 
         
-        V_spt0_spruce = volume_spruce + V_spti_1
-        V_spt0_pine = volume_pine + V_spti_2
-        V_spt0_birch = volume_birch + V_spti_3
-        V_spt0_others = volume_others + V_spti_4
-        V_spt0_ROS = volume_ROS + V_spti_5
-        V_spt0_warm = volume_warm + V_spti_6
-        
-        V_spti_spruce = V_spt0_spruce * remain_fraction_spruce
-        Decomposition_spruce = V_spt0_spruce - V_spti_spruce
 
-        
-        V_spti_pine = V_spt0_pine * remain_fraction_pine
-        Decomposition_pine = V_spt0_pine - V_spti_pine
 
+        T_volume_spruce, T_volume_pine, T_volume_birch, T_volume_others, T_volume_ROS, T_volume_warm   = 0., 0., 0., 0., 0., 0.        
         
-        V_spti_birch = V_spt0_birch * remain_fraction_birch
-        Decomposition_birch = V_spt0_birch - V_spti_birch
+        Total_V_remain_spruce, Total_V_remain_pine, Total_V_remain_birch, Total_V_remain_others, Total_V_remain_ROS, Total_V_remain_warm  = 0., 0., 0., 0., 0., 0.
+        
+        T_Decomposition_spruce, T_Decomposition_pine, T_Decomposition_birch, T_Decomposition_others, T_Decomposition_ROS, T_Decomposition_warm = 0., 0., 0., 0., 0., 0.
+        
+        dbh_spt0_spruce, dbh_spt0_pine, dbh_spt0_birch,dbh_spt0_other, dbh_spt0_ROS, dbh_spt0_warm = 0., 0., 0., 0., 0., 0.
+        
+        for stem in Deadtrees:
+#            GrowthModel.GROWTH.append((stem, GrowthModel.DERIVED_TREES[stem].Period, GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead']))
+            if self.DERIVED_TREES[stem].species == "spruce":
+                volume_spruce    =  GrowthModel.DERIVED_TREES[stem].dead_volume 
+                T_volume_spruce += volume_spruce
+                y_spti_spruce    =  (GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead'] * 5)               
+                dbh_spt0_spruce  = GrowthModel.DERIVED_TREES[stem].DeadList['dbh']/10
+                if Deadtrees_spruce >= 0.001:
+                    remain_fraction_spruce = exp(-1 * exp(c2 + (c5 * y_spti_spruce) + (c7 * dbh_spt0_spruce) + gamma_2spt ))
+                else:
+                    remain_fraction_spruce = 0.                
+                V_remain_spruce         =  volume_spruce * remain_fraction_spruce
+                Decomposition_spruce    =  volume_spruce - V_remain_spruce
+                Total_V_remain_spruce  += V_remain_spruce
+                T_Decomposition_spruce += Decomposition_spruce
+                
+            elif self.DERIVED_TREES[stem].species == "scots_pine":
+                volume_pine    =  GrowthModel.DERIVED_TREES[stem].dead_volume 
+                T_volume_pine += volume_pine
+                y_spti_pine    =  (GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead'] * 5)
+                dbh_spt0_pine  = GrowthModel.DERIVED_TREES[stem].DeadList['dbh']/10
+                if Deadtrees_pine >= 0.001:
+                    remain_fraction_pine   = exp(-1 * exp(c1 + (c4 * y_spti_pine)   + (c7 * dbh_spt0_pine) + gamma_1spt ))
+                else:
+                    remain_fraction_pine = 0.
+                V_remain_pine         =  volume_pine * remain_fraction_pine
+                Decomposition_pine    =  volume_pine - V_remain_pine
+                Total_V_remain_pine  += V_remain_pine
+                T_Decomposition_pine += Decomposition_pine                                       
+                
+            elif self.DERIVED_TREES[stem].species == "birch":
+                volume_birch    =  GrowthModel.DERIVED_TREES[stem].dead_volume 
+                T_volume_birch += volume_birch
+                y_spti_birch    =  (GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead'] * 5)
+                dbh_spt0_birch  = GrowthModel.DERIVED_TREES[stem].DeadList['dbh']/10 
+                
+                if Deadtrees_birch >= 0.001:
+                    remain_fraction_birch  = exp(-1 * exp(c3 + (c6 * y_spti_birch)  + (c7 * dbh_spt0_birch) + gamma_3spt))
+                else:
+                    remain_fraction_birch = 0.
+                V_remain_birch         =  volume_birch * remain_fraction_birch
+                Decomposition_birch    =  volume_birch - V_remain_birch
+                Total_V_remain_birch  += V_remain_birch
+                T_Decomposition_birch += Decomposition_birch                     
+                    
+                    
+            elif self.DERIVED_TREES[stem].species == "other_broadleaves":
+                volume_others    =  GrowthModel.DERIVED_TREES[stem].dead_volume 
+                T_volume_others += volume_others
+                y_spti_others    =  (GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead']* 5) 
+                dbh_spt0_other   = GrowthModel.DERIVED_TREES[stem].DeadList['dbh']/10            
+                if Deadtrees_other >= 0.001:
+                    remain_fraction_others = exp(-1 * exp(c3 + (c6 * y_spti_others) + (c7 * dbh_spt0_other) + gamma_4spt))
+                else:
+                    remain_fraction_others = 0.
+                V_remain_others         =  volume_others * remain_fraction_others
+                Decomposition_others    =  volume_others - V_remain_others
+                Total_V_remain_others  += V_remain_others
+                T_Decomposition_others += Decomposition_others
+                
+                
+            elif self.DERIVED_TREES[stem].species == "ROS":
+                volume_ROS    =  GrowthModel.DERIVED_TREES[stem].dead_volume 
+                T_volume_ROS += volume_ROS
+                y_spti_ROS    =  (GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead'] * 5)
+                dbh_spt0_ROS  = GrowthModel.DERIVED_TREES[stem].DeadList['dbh']/10  
+                if Deadtrees_ROS >= 0.001:
+                    remain_fraction_ROS = exp(-1 * exp(c3 + (c6 * y_spti_ROS) + (c7 * dbh_spt0_ROS) + gamma_5spt))
+                else:
+                    remain_fraction_ROS = 0.   
+                V_remain_ROS         =  volume_ROS * remain_fraction_ROS
+                Decomposition_ROS    =  volume_ROS - V_remain_ROS
+                Total_V_remain_ROS  += V_remain_ROS
+                T_Decomposition_ROS += Decomposition_ROS                   
+            else:
+                volume_warm    =  GrowthModel.DERIVED_TREES[stem].dead_volume 
+                T_volume_warm += volume_warm
+                y_spti_warm    = (GrowthModel.DERIVED_TREES[stem].DeadList['yr_since_dead']* 5) 
+                dbh_spt0_warm  = GrowthModel.DERIVED_TREES[stem].DeadList['dbh']/10                           
+                if Deadtrees_warm >= 0.001:
+                    remain_fraction_warm = exp(-1 * exp(c3 + (c6 * y_spti_warm) + (c7 * dbh_spt0_warm) + gamma_6spt))
+                else:
+                    remain_fraction_warm = 0.              
+                V_remain_warm         =  volume_warm * remain_fraction_warm
+                Decomposition_warm    =  volume_warm - V_remain_warm
+                Total_V_remain_warm  += V_remain_warm
+                T_Decomposition_warm += Decomposition_warm             
+       
+#        V_spti_spruce = Total_V_remain_spruce - V_spt0_spruce
+#        V_spti_pine = Total_V_remain_pine - V_spt0_pine
+#        V_spti_birch = Total_V_remain_birch - V_spt0_birch
+#        V_spti_others = Total_V_remain_others - V_spt0_others
+#        V_spti_ROS = Total_V_remain_ROS - V_spt0_ROS
+#        V_spti_warm = Total_V_remain_warm - V_spt0_warm
 
-        
-        V_spti_others = V_spt0_others * remain_fraction_others
-        Decomposition_other = V_spt0_others - V_spti_others
-        
-        
-        V_spti_ROS = V_spt0_ROS * remain_fraction_ROS
-        Decomposition_ROS = V_spt0_ROS - V_spti_ROS
 
-        V_spti_warm = V_spt0_warm * remain_fraction_warm
-        Decomposition_warm = V_spt0_warm - V_spti_warm
-
+        volume_deadwood_p0 = volume_deadwood_p0
+        Decomposition= T_Decomposition_spruce + T_Decomposition_pine + T_Decomposition_birch + T_Decomposition_others + T_Decomposition_ROS + T_Decomposition_warm
+        volume_deadwood = Total_V_remain_spruce + Total_V_remain_pine + Total_V_remain_birch + Total_V_remain_others + Total_V_remain_ROS + Total_V_remain_warm
+#        volume_deadwood = V_spti_spruce + V_spti_pine + V_spti_birch + V_spti_others + V_spti_ROS + V_spti_warm
         
-        Decomposition= Decomposition_spruce + Decomposition_pine + Decomposition_birch + Decomposition_other + Decomposition_ROS + Decomposition_warm
-        volume_deadwood = V_spt0_spruce + V_spt0_pine + V_spt0_birch + V_spt0_others + V_spt0_ROS + V_spt0_warm
-        
-        #GrowthModel.GROWTH.append((volume_deadwood  ))
+#        volume_deadwood_NoDecay = T_volume_spruce + T_volume_pine + T_volume_birch + T_volume_others + T_volume_ROS + T_volume_warm
+#        GrowthModel.GROWTH.append((volume_spruce,  ))
+#        points = 0
+#        if volume_deadwood >= 20:
+#            points = 100
+#        elif volume_deadwood < 20 and volume_deadwood >= 5:
+#            points = 50
+#        else:
+#            points = 0
         points = 0
-        if volume_deadwood >= 20:
-            points = 100
-        elif volume_deadwood < 20 and volume_deadwood >= 5:
-            points = 50
+        
+        if volume_deadwood - volume_deadwood_p0 >= 5:
+            points = 1
         else:
-            points = 0
-            
-        return V_spti_spruce, V_spti_pine, V_spti_birch, V_spti_others, V_spti_ROS, V_spti_warm, volume_deadwood, Decomposition, points    
+            points = 0           
+#        GrowthModel.GROWTH.append((points))    
+        return  volume_deadwood, Decomposition, points, volume_deadwood #, volume_deadwood_NoDecay , valuesP1, keysP1
 
 
                                                 # %%%%%    Biodiversity indicator - Species richness  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -3539,12 +3712,12 @@ class GrowthModel():
         ###----------------------------------------------------------------------------------------------------------------------------------------------------------------        
         """      
         
-        value_spruce = len([k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "spruce" and GrowthModel.DERIVED_TREES[k].n_tree != 0])
-        value_pine = len([k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "scots_pine" and GrowthModel.DERIVED_TREES[k].n_tree != 0])
-        value_birch = len([k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "birch" and GrowthModel.DERIVED_TREES[k].n_tree != 0])
-        value_other = len([k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "other_broadleaves" if GrowthModel.DERIVED_TREES[k].n_tree != 0])
-        value_ROS = len([k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "ROS" and GrowthModel.DERIVED_TREES[k].n_tree != 0])
-        value_warm = len([k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "warm" and GrowthModel.DERIVED_TREES[k].n_tree != 0])
+        value_spruce = len(set([k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "spruce" and GrowthModel.DERIVED_TREES[k].n_tree != 0]))
+        value_pine = len(set([k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "scots_pine" and GrowthModel.DERIVED_TREES[k].n_tree != 0]))
+        value_birch = len(set([k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "birch" and GrowthModel.DERIVED_TREES[k].n_tree != 0]))
+        value_other = len(set([k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "other_broadleaves" if GrowthModel.DERIVED_TREES[k].n_tree != 0]))
+        value_ROS = len(set([k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "ROS" and GrowthModel.DERIVED_TREES[k].n_tree != 0]))
+        value_warm = len(set([k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "warm" and GrowthModel.DERIVED_TREES[k].n_tree != 0]))
 ##****************************************         
         if value_spruce != 0:
             u_value_spruce =1
@@ -3577,16 +3750,20 @@ class GrowthModel():
             u_value_warm=0
 ##****************************************        
         u_value =  u_value_spruce + u_value_pine + u_value_birch + u_value_other + u_value_ROS + u_value_warm
-        
+
+#        points = 0
+#        if u_value >= 4:
+#            points = 100
+#        elif u_value <4 and u_value >= 2:
+#            points = 50
+#        else:
+#            points = 0
         points = 0
-        if u_value >= 4:
-            points = 100
-        elif u_value <4 or u_value >= 2:
-            points = 50
+        if u_value >= 3:
+            points = 1
         else:
             points = 0
-        
-        return points
+        return u_value, points
 
 
                                                 # %%%%%    Biodiversity indicator - Species diversity (Shannon Index)  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -3608,7 +3785,7 @@ class GrowthModel():
         ### Species diversity (Shannon Index) alpha      | combines species richness and evenness|            >= 1                  <1 and >= 0.5            < 0.5        
         ###----------------------------------------------------------------------------------------------------------------------------------------------------------------        
         """
-        trees= [k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].n_tree != 0]
+        trees= set([k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].n_tree != 0])
         
         
         N_spruce, N_pine, N_birch, N_others, N_ROS, N_warm = 0.0000000001,0.0000000001,0.0000000001,0.0000000001,0.0000000001,0.0000000001
@@ -3636,15 +3813,20 @@ class GrowthModel():
 
         alpha = -1*sum(fracs*np.log(fracs))
         
+#        points = 0
+#        if alpha >= 1:
+#            points = 100
+#        elif alpha < 1 and alpha >= 0.5:
+#            points = 50
+#        else:
+#            points = 0
         points = 0
-        if alpha >= 1:
-            points = 100
-        elif alpha < 1 and alpha >= 0.5:
-            points = 50
+        if alpha >= 0.7:
+            points = 1
         else:
             points = 0
-        
-        return points
+            
+        return alpha, points
             
 
 
@@ -3652,7 +3834,8 @@ class GrowthModel():
 
     def large_decidous_vol(self):
         """
-        The volume of decidous trees larger than 40 cm dbh (m3/ha)
+        The volume of decidous trees larger than 40 cm (400 mm) dbh (m3/ha)
+        
         
         ###================================================================================================================================================================
         ### Biodiversity Indicator                                definition                      100 points                  50 points             0 points
@@ -3664,9 +3847,9 @@ class GrowthModel():
 #        trees= [k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].n_tree != 0]
     
             
-        vol_others = sum([(self.DERIVED_TREES[k].vol_others + self.DERIVED_TREES[k].vol_increment) for k in self.DERIVED_TREES.keys() if (self.DERIVED_TREES[k].n_tree != 0) and self.DERIVED_TREES[k].dbh > 40])
-        vol_ROS = sum([(self.DERIVED_TREES[k].vol_ROS + self.DERIVED_TREES[k].vol_increment) for k in self.DERIVED_TREES.keys() if (self.DERIVED_TREES[k].n_tree != 0) and self.DERIVED_TREES[k].dbh > 40])
-        vol_warm =  sum([(self.DERIVED_TREES[k].vol_warm + self.DERIVED_TREES[k].vol_increment) for k in self.DERIVED_TREES.keys() if (self.DERIVED_TREES[k].n_tree != 0) and self.DERIVED_TREES[k].dbh > 40])        
+        vol_others = sum([(self.DERIVED_TREES[k].vol_others + self.DERIVED_TREES[k].vol_increment) for k in set(self.DERIVED_TREES.keys()) if (self.DERIVED_TREES[k].n_tree != 0) and self.DERIVED_TREES[k].dbh > 400])
+        vol_ROS = sum([(self.DERIVED_TREES[k].vol_ROS + self.DERIVED_TREES[k].vol_increment) for k in set(self.DERIVED_TREES.keys()) if (self.DERIVED_TREES[k].n_tree != 0) and self.DERIVED_TREES[k].dbh > 400])
+        vol_warm =  sum([(self.DERIVED_TREES[k].vol_warm + self.DERIVED_TREES[k].vol_increment) for k in set(self.DERIVED_TREES.keys()) if (self.DERIVED_TREES[k].n_tree != 0) and self.DERIVED_TREES[k].dbh > 400])      
         
         
         decidous_vol = [vol_others, vol_ROS , vol_warm]
@@ -3674,14 +3857,20 @@ class GrowthModel():
         vol = sum(vol)
         points = 0
         
-        if vol > 10:
-            points = 100
-        elif vol <= 10 and vol > 5:
-            points = 50
+#
+#        if vol > 10:
+#            points = 100
+#        elif vol <= 10 and vol > 5:
+#            points = 50
+#        else:
+#            points = 0
+        
+        if vol > 7:
+            points = 1
         else:
             points = 0
         
-        return points
+        return vol, points
                     
                     
                                                 # %%%%%     Biodiversity indicator - number of large trees  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
@@ -3699,34 +3888,42 @@ class GrowthModel():
         """
         #trees = [k for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].n_tree != 0]
 
-        Large_spruce_50 = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "spruce" and GrowthModel.DERIVED_TREES[k].dbh > 50])
-        Large_pine_50 = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "scots_pine" and GrowthModel.DERIVED_TREES[k].dbh > 50])
-        Large_birch_50 = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "birch" and GrowthModel.DERIVED_TREES[k].dbh > 50]) 
-        Large_decidous_50_others = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "other_broadleaves" and GrowthModel.DERIVED_TREES[k].dbh > 50])
-        Large_decidous_50_ROS = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "ROS" and GrowthModel.DERIVED_TREES[k].dbh > 50])
-        Large_decidous_50_warm =  sum([GrowthModel.DERIVED_TREES[k].n_tree for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "warm" and GrowthModel.DERIVED_TREES[k].dbh > 50])
-        Large_spruce_40 = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "spruce" and GrowthModel.DERIVED_TREES[k].dbh <= 50 and GrowthModel.DERIVED_TREES[k].dbh > 40])
-        Large_pine_40 = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "scots_pine" and GrowthModel.DERIVED_TREES[k].dbh <= 50 and GrowthModel.DERIVED_TREES[k].dbh > 40])
-        Large_birch_40 = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "birch" and GrowthModel.DERIVED_TREES[k].dbh <= 50 and GrowthModel.DERIVED_TREES[k].dbh > 40]) 
-        Large_decidous_40_others = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "other_broadleaves" and GrowthModel.DERIVED_TREES[k].dbh <= 50 and GrowthModel.DERIVED_TREES[k].dbh > 40])
-        Large_decidous_40_ROS = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "ROS" and GrowthModel.DERIVED_TREES[k].dbh <= 50 and GrowthModel.DERIVED_TREES[k].dbh > 40])
-        Large_decidous_40_warm = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in GrowthModel.DERIVED_TREES.keys() if GrowthModel.DERIVED_TREES[k].species == "warm" and GrowthModel.DERIVED_TREES[k].dbh <= 50 and GrowthModel.DERIVED_TREES[k].dbh > 40])
+        Large_spruce_50 = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in set(GrowthModel.DERIVED_TREES.keys()) if (GrowthModel.DERIVED_TREES[k].species == "spruce" and GrowthModel.DERIVED_TREES[k].dbh > 500)])
+        Large_pine_50 = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in set(GrowthModel.DERIVED_TREES.keys()) if (GrowthModel.DERIVED_TREES[k].species == "scots_pine" and GrowthModel.DERIVED_TREES[k].dbh > 500)])
+        Large_birch_50 = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in set(GrowthModel.DERIVED_TREES.keys()) if (GrowthModel.DERIVED_TREES[k].species == "birch" and GrowthModel.DERIVED_TREES[k].dbh > 500)]) 
+        Large_decidous_50_others = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in set(GrowthModel.DERIVED_TREES.keys()) if (GrowthModel.DERIVED_TREES[k].species == "other_broadleaves" and GrowthModel.DERIVED_TREES[k].dbh > 500)])
+        Large_decidous_50_ROS = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in set(GrowthModel.DERIVED_TREES.keys()) if (GrowthModel.DERIVED_TREES[k].species == "ROS" and GrowthModel.DERIVED_TREES[k].dbh > 500)])
+        Large_decidous_50_warm =  sum([GrowthModel.DERIVED_TREES[k].n_tree for k in set(GrowthModel.DERIVED_TREES.keys()) if (GrowthModel.DERIVED_TREES[k].species == "warm" and GrowthModel.DERIVED_TREES[k].dbh > 500)])
+        Large_spruce_40 = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in set(GrowthModel.DERIVED_TREES.keys()) if (GrowthModel.DERIVED_TREES[k].species == "spruce" and GrowthModel.DERIVED_TREES[k].dbh > 400)])
+        Large_pine_40 = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in set(GrowthModel.DERIVED_TREES.keys()) if (GrowthModel.DERIVED_TREES[k].species == "scots_pine"  and GrowthModel.DERIVED_TREES[k].dbh > 400)])
+        Large_birch_40 = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in set(GrowthModel.DERIVED_TREES.keys()) if (GrowthModel.DERIVED_TREES[k].species == "birch"  and GrowthModel.DERIVED_TREES[k].dbh > 400)]) 
+        Large_decidous_40_others = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in set(GrowthModel.DERIVED_TREES.keys()) if (GrowthModel.DERIVED_TREES[k].species == "other_broadleaves"  and GrowthModel.DERIVED_TREES[k].dbh > 400)])
+        Large_decidous_40_ROS = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in set(GrowthModel.DERIVED_TREES.keys()) if (GrowthModel.DERIVED_TREES[k].species == "ROS" and  GrowthModel.DERIVED_TREES[k].dbh > 400)])
+        Large_decidous_40_warm = sum([GrowthModel.DERIVED_TREES[k].n_tree for k in set(GrowthModel.DERIVED_TREES.keys()) if (GrowthModel.DERIVED_TREES[k].species == "warm" and GrowthModel.DERIVED_TREES[k].dbh > 400)])
         
         
         Large_decidous_50  = Large_decidous_50_others + Large_decidous_50_ROS + Large_decidous_50_warm
         Large_decidous_40  = Large_decidous_40_others + Large_decidous_40_ROS + Large_decidous_40_warm
-         
+#        GrowthModel.GROWTH.append((Large_spruce_50 + Large_pine_50 + Large_birch_50 + Large_decidous_50))
         large_greaterthan50 = Large_spruce_50 + Large_pine_50 + Large_birch_50 + Large_decidous_50
         large_greaterthan40 = Large_spruce_40 + Large_pine_40 + Large_birch_40 + Large_decidous_40
+        
+#        GrowthModel.GROWTH.append((large_greaterthan50,large_greaterthan40))
+#        points = 0
+#        if large_greaterthan50 > 50:
+#            points = 100
+#        elif large_greaterthan40 > 40 :
+#            points = 50
+#        else:
+#            points = 0
         points = 0
-        if large_greaterthan50 > 50:
-            points = 100
-        elif large_greaterthan40 > 40:
-            points = 50
+        if large_greaterthan50 > 45:
+            points = 1
+
         else:
             points = 0
-        
-        return points
+            
+        return large_greaterthan50, points
 
                                                     # %%%%%     Biodiversity indicator - mature broadleaf-rich forest  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 #todo
@@ -5432,10 +5629,11 @@ class GrowthModel():
             if trees_dict[t] <= .00001:  
                 trees_dict[t] = 0.
             #GrowthModel.GROWTH.append((R_SPulp[t],R_SSaw[t] ))
+            
             attributes = dict(plot_id = self.DERIVED_TREES[t].plot_id,tree_id = self.DERIVED_TREES[t].tree_id,tree_sp = self.DERIVED_TREES[t].tree_sp, year = year, dbh = self.DERIVED_TREES[t].dbh , 
                               height = self.DERIVED_TREES[t].height, diameter_class = self.DERIVED_TREES[t].diameter_class, tree_Factor= self.DERIVED_TREES[t].tree_Factor , n_tree = trees_dict[t],
                               SI_spp = self.DERIVED_TREES[t].SI_spp, altitude_m = self.DERIVED_TREES[t].altitude_m, SI_m = self.DERIVED_TREES[t].SI_m, LAT = self.DERIVED_TREES[t].LAT, species = self.DERIVED_TREES[t].species, 
-                              t_age =self.DERIVED_TREES[t].t_age , Period = period, Num_DeadTrees = self.DERIVED_TREES[t].Num_DeadTrees, Dom_species = self.DERIVED_TREES[t].Dom_species, BGB = BGB[t], 
+                              t_age =self.DERIVED_TREES[t].t_age , Period = period, yr_since_dead = self.DERIVED_TREES[t].yr_since_dead, Num_DeadTrees = self.DERIVED_TREES[t].Num_DeadTrees, Dom_species = self.DERIVED_TREES[t].Dom_species, BGB = BGB[t], 
                               Tot_co2 = Tot_co2[t], Total_carbon = Total_carbon[t], Tot_carbon_stems = Tot_carbon_stems[t] , Tot_carbon_roots = Tot_carbon_roots[t], 
                               Tot_co2_stems =Tot_co2_stems[t], Tot_co2_roots = Tot_co2_roots[t], Tot_biomass = Tot_biomass[t], vol_increment = self.DERIVED_TREES[t].vol_increment , 
                               dead_volume = self.DERIVED_TREES[t].dead_volume, dead_co2 = self.DERIVED_TREES[t].dead_co2, dead_biomass= self.DERIVED_TREES[t].dead_biomass, dead_C = self.DERIVED_TREES[t].dead_C, R_SPulp = R_SPulp[t], 
@@ -10056,14 +10254,14 @@ class GrowthModel():
                         G_before      = G_before
                         R_BA          = R_BA
                         ba[t]         = self.DERIVED_TREES[t].ba
-                        BGB[t]              = self.DERIVED_TREES[t].BGB
-                        Tot_co2[t]          = self.DERIVED_TREES[t].Tot_co2
-                        Tot_biomass[t]      = self.DERIVED_TREES[t].Tot_biomass
-                        Total_carbon[t]     = self.DERIVED_TREES[t].Total_carbon  
-                        Tot_carbon_stems[t] = self.DERIVED_TREES[t].Tot_carbon_stems 
-                        Tot_carbon_roots[t] = self.DERIVED_TREES[t].Tot_carbon_roots 
-                        Tot_co2_stems[t]    = self.DERIVED_TREES[t].Tot_co2_stems
-                        Tot_co2_roots[t]    = self.DERIVED_TREES[t].Tot_co2_roots 
+                        BGB[t]                = self.DERIVED_TREES[t].BGB
+                        Tot_co2[t]            = self.DERIVED_TREES[t].Tot_co2
+                        Tot_biomass[t]        = self.DERIVED_TREES[t].Tot_biomass
+                        Total_carbon[t]       = self.DERIVED_TREES[t].Total_carbon  
+                        Tot_carbon_stems[t]   = self.DERIVED_TREES[t].Tot_carbon_stems 
+                        Tot_carbon_roots[t]   = self.DERIVED_TREES[t].Tot_carbon_roots 
+                        Tot_co2_stems[t]      = self.DERIVED_TREES[t].Tot_co2_stems
+                        Tot_co2_roots[t]      = self.DERIVED_TREES[t].Tot_co2_roots 
                         volsum[t]     = self.tree_volume(t, n_tree, aboveBark= True)[0]
                         vol_spruce[t] = self.tree_volume(t, n_tree, aboveBark= True)[1]
                         vol_pine[t]   = self.tree_volume(t, n_tree, aboveBark= True)[2]
@@ -10110,12 +10308,11 @@ class GrowthModel():
                 R_SSaw[t]           = 0.
                 R_SPulp[t]          = 0.
 
-
-
+            
             attributes = dict(plot_id = self.DERIVED_TREES[t].plot_id,tree_id = self.DERIVED_TREES[t].tree_id ,tree_sp = self.DERIVED_TREES[t].tree_sp, year = year, dbh = self.DERIVED_TREES[t].dbh , 
                               height = self.DERIVED_TREES[t].height, diameter_class = self.DERIVED_TREES[t].diameter_class, tree_Factor =self.DERIVED_TREES[t].tree_Factor , n_tree = trees_dict[t],
                               SI_spp = self.DERIVED_TREES[t].SI_spp, altitude_m = self.DERIVED_TREES[t].altitude_m, SI_m = self.DERIVED_TREES[t].SI_m, LAT = self.DERIVED_TREES[t].LAT, species = self.DERIVED_TREES[t].species, 
-                              t_age =self.DERIVED_TREES[t].t_age , Period = period, Num_DeadTrees = self.DERIVED_TREES[t].Num_DeadTrees, Dom_species = self.DERIVED_TREES[t].Dom_species, BGB = BGB[t], Tot_co2 = Tot_co2[t], 
+                              t_age =self.DERIVED_TREES[t].t_age , Period = period, yr_since_dead = self.DERIVED_TREES[t].yr_since_dead, Num_DeadTrees = self.DERIVED_TREES[t].Num_DeadTrees, Dom_species = self.DERIVED_TREES[t].Dom_species, BGB = BGB[t], Tot_co2 = Tot_co2[t], 
                               Total_carbon = Total_carbon[t],  Tot_carbon_stems = Tot_carbon_stems[t] , Tot_carbon_roots = Tot_carbon_roots[t], Tot_co2_stems = Tot_co2_stems[t], 
                               Tot_co2_roots = Tot_co2_roots[t], Tot_biomass = Tot_biomass[t], vol_increment = self.DERIVED_TREES[t].vol_increment , dead_volume = self.DERIVED_TREES[t].dead_volume,
                               dead_co2 = self.DERIVED_TREES[t].dead_co2, dead_biomass= self.DERIVED_TREES[t].dead_biomass, dead_C = self.DERIVED_TREES[t].dead_C,  R_SPulp = R_SPulp[t], R_PPulp = R_PPulp[t], R_HPulp = R_HPulp[t], 
@@ -11679,12 +11876,12 @@ class GrowthModel():
                 R_SPulp[t]          = 0.
 
                 
-                
+            
 #            GrowthModel.GROWTH.append((R_SPulp[t], R_SSaw[t]))
             attributes = dict(plot_id = self.DERIVED_TREES[t].plot_id,tree_id = self.DERIVED_TREES[t].tree_id,tree_sp = self.DERIVED_TREES[t].tree_sp, year = year, dbh = self.DERIVED_TREES[t].dbh , 
                               height = self.DERIVED_TREES[t].height, diameter_class = self.DERIVED_TREES[t].diameter_class, tree_Factor =self.DERIVED_TREES[t].tree_Factor , n_tree = trees_dict[t],
                               SI_spp = self.DERIVED_TREES[t].SI_spp, altitude_m = self.DERIVED_TREES[t].altitude_m, SI_m = self.DERIVED_TREES[t].SI_m, LAT = self.DERIVED_TREES[t].LAT, species = self.DERIVED_TREES[t].species, 
-                              t_age =self.DERIVED_TREES[t].t_age , Period = period, Num_DeadTrees = self.DERIVED_TREES[t].Num_DeadTrees, Dom_species = self.DERIVED_TREES[t].Dom_species, BGB = BGB[t], Tot_co2 = Tot_co2[t], 
+                              t_age =self.DERIVED_TREES[t].t_age , Period = period, yr_since_dead = self.DERIVED_TREES[t].yr_since_dead, Num_DeadTrees = self.DERIVED_TREES[t].Num_DeadTrees, Dom_species = self.DERIVED_TREES[t].Dom_species, BGB = BGB[t], Tot_co2 = Tot_co2[t], 
                               Total_carbon = Total_carbon[t],  Tot_carbon_stems = Tot_carbon_stems[t] , Tot_carbon_roots = Tot_carbon_roots[t], Tot_co2_stems = Tot_co2_stems[t], 
                               Tot_co2_roots = Tot_co2_roots[t], Tot_biomass = Tot_biomass[t], vol_increment = self.DERIVED_TREES[t].vol_increment , dead_volume = self.DERIVED_TREES[t].dead_volume,
                               dead_co2 = self.DERIVED_TREES[t].dead_co2, dead_biomass= self.DERIVED_TREES[t].dead_biomass, dead_C = self.DERIVED_TREES[t].dead_C,  R_SPulp = R_SPulp[t], R_PPulp = R_PPulp[t], R_HPulp = R_HPulp[t], 
