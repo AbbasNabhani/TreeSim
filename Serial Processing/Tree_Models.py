@@ -3652,7 +3652,7 @@ class GrowthModel():
             points = 1
         else:
             points = 0           
-#        GrowthModel.GROWTH.append((points))    
+    
         return  volume_deadwood, Decomposition, points, volume_deadwood 
 
 

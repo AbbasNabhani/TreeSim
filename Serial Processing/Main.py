@@ -407,7 +407,7 @@ for x in tqdm(plots.keys()):
                             
 
                     else:
-                        #print("\n\n\nThere is no tree in this plot.\n")
+                       
                         
                         with open(filename2, 'a', newline='') as csvfile:
                             fieldnames = ['plot_id','tree_id','tree_sp','dbh','mort','height', 'diameter_class','tree_Factor', 'volume', 'Inc','Biomass','SI_spp', 'SI_m', 't_age','volsum','vol_spruce','vol_pine','vol_birch','vol_others','vol_ROS','vol_warm']

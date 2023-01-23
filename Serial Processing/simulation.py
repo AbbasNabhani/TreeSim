@@ -2057,11 +2057,7 @@ class Simulator():
                     ds.R_PPulp[i] = float(format(Timber_products_tuple[3],'.2f')) 
                     ds.R_HSaw[i]  = float(format(Timber_products_tuple[4],'.2f')) 
                     ds.R_HPulp[i] = float(format(Timber_products_tuple[5],'.2f'))
-
-                    
-                    # ds.Dead_wood_co2[i]      = float(format(self.plot.fDeadtrees()[0],'.2f'))
-                    # ds.Dead_wood_biomass[i]  = float(format(self.plot.fDeadtrees()[1],'.2f'))
-                    # ds.Dead_wood_carbon[i] = float(format(self.plot.fDeadtrees()[2],'.2f'))                
+             
                 
                 
                 
