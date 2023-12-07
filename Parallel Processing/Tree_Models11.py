@@ -610,7 +610,7 @@ class GrowthModel():
             
             elif survival == 0:
                 n_tree = 0
-                Num_DeadTrees = self.DERIVED_TREES[s].tree_Factor
+                Num_DeadTrees = self.DERIVED_TREES[s].n_tree * max(mort_rate, 0) #self.DERIVED_TREES[s].tree_Factor
                 ba = 0
                 Period = self.DERIVED_TREES[s].Period + 0
                 DBH = self.DERIVED_TREES[s].dbh + 0
@@ -633,7 +633,7 @@ class GrowthModel():
             if Is_tree_dead < X:
                 n_tree = 0
                 ba = 0
-                Num_DeadTrees = self.DERIVED_TREES[s].tree_Factor
+                Num_DeadTrees = self.DERIVED_TREES[s].n_tree * max(mort_rate, 0) #self.DERIVED_TREES[s].tree_Factor
                 Period = self.DERIVED_TREES[s].Period + 0
                 yr_since_dead = self.DERIVED_TREES[s].yr_since_dead + 1
                 DBH = self.DERIVED_TREES[s].dbh + 0
